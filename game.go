@@ -34,6 +34,8 @@ type GameOptions struct {
 	PlayerCount int
 	// Seed is number used as random seed and if it is reused it allows to play same game with same looking rounds
 	Seed int64
+	// Fps sets screen framerate
+	Fps int
 }
 
 // NewGame creates new game object.
@@ -42,6 +44,7 @@ func NewGame(o GameOptions) *Game {
 	game := &Game{}
 	game.options = o
 	game.engine = tl.NewGame()
+	game.engine.Screen().SetFps(float64(o.Fps))
 	game.players = make([]*Player, o.PlayerCount)
 	for pi := range game.players {
 		game.players[pi] = &Player{}

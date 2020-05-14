@@ -36,6 +36,11 @@ func main() {
 				Usage:       "Height of the game world in `NUMBER` of console cells",
 				DefaultText: "actual terminal height",
 			},
+			&cli.IntFlag{
+				Name:  "fps",
+				Usage: "Screen framerate, use lower values to reduce system resources usage",
+				Value: 40,
+			},
 		},
 		HideHelpCommand: true,
 		Action:          run,
@@ -79,6 +84,7 @@ func run(c *cli.Context) error {
 		Height:      height,
 		Seed:        seed,
 		PlayerCount: 2,
+		Fps:         c.Int("fps"),
 	})
 
 	// start game
