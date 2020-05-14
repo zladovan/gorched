@@ -1,5 +1,7 @@
 # Gorched
 
+[![Run on Repl.it](https://repl.it/badge/github/zladovan/gorched)](https://repl.it/github/zladovan/gorched)
+
 Gorched is terminal based game written in [GO](https://golang.org/) inspired by "The Mother of all games" [Scorched Earth](https://en.wikipedia.org/wiki/Scorched_Earth_(video_game)).
 
 ![showcase](showcase.gif "Showcase recorded from terminal output")
