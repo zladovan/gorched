@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"github.com/zladovan/gorched"
 	"golang.org/x/crypto/ssh/terminal"
@@ -66,9 +67,9 @@ func run(c *cli.Context) error {
 	width := c.Int("width")
 	height := c.Int("height")
 	if width <= 0 || height <= 0 {
-		tw, th, err := terminal.GetSize(int(os.Stdin.Fd()))
+		tw, th, err := terminal.GetSize(int(os.Stdout.Fd()))
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Unable to get terminal size. Set the size manually with --width and --height flags.")
 		}
 		if width <= 0 {
 			width = tw
