@@ -21,7 +21,7 @@ type Terrain struct {
 func (t *Terrain) Draw(s *tl.Screen) {
 	for x, baseY := range t.line {
 		for y := baseY; y <= t.height; y++ {
-			s.RenderCell(x, y, &tl.Cell{Fg: chooseColor(y-baseY, t.lowColor), Ch: '█'})
+			s.RenderCell(x, y, &tl.Cell{Bg: chooseColor(y-baseY, t.lowColor), Ch: ' '})
 		}
 	}
 }
