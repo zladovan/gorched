@@ -22,19 +22,11 @@ type Tank struct {
 	color tl.Attr
 	// state describes the current state of Tank
 	state TankState
-	// // if true tank was already hit and it's out of game
-	// isDead bool
-	// // if true shooting power is increasing and tank is preparing to shoot
-	// isLoading bool
-	// // if true tank is shootin now
-	// isShooting bool
-	// // if true tank cannot shot now because it's waiting for bullet finishes his path
-	// cannotShoot bool
-
 	// callback called when shooted bullet finishes his path
 	onShootingFinished func()
 	// label is used to display info about angle, power or to show some message
-	label     *Label
+	label *Label
+	// asciiOnly if true will change sprite of the tank to the one containing no unicode characters
 	asciiOnly bool
 }
 
