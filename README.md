@@ -6,6 +6,8 @@ Gorched is terminal based game written in [GO](https://golang.org/) inspired by 
 
 ![showcase](showcase.gif "Showcase recorded from terminal output")
 
+> How the game looks like depends on your terminal !
+
 ## Features
 
  - rendered in terminal
@@ -31,6 +33,16 @@ Gorched currently has only one mode where two players are playing locally agains
 - <kbd>Ctrl</kbd>+<kbd>N</kbd> start next round
 - <kbd>S</kbd> show score
 - <kbd>H</kbd> show help 
+
+## Troubleshooting
+
+### When you see the question marks 
+
+When there are question marks instead some parts of the tank sprite it's probably because your terminal does not support unicode characters. Start game with `--ascii-only` flag and different sprite based only on ACSII characters will be used.
+
+## When you see weird colors
+
+The exact colors used in the game depends on your terminal support and settings. So they can be a lot different as the colors in the showcase. When they are too weird or you see some big white areas start game with `--low-color` flag to use only basic 8 colors. Graphics would look simpler but it should be better.
 
 ## Credits
 
