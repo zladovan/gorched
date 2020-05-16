@@ -46,6 +46,10 @@ func main() {
 				Name:  "ascii-only",
 				Usage: "Use only ASCII characters to draw graphics",
 			},
+			&cli.BoolFlag{
+				Name:  "low-color",
+				Usage: "Use only 8 colors to draw graphics",
+			},
 		},
 		HideHelpCommand: true,
 		Action:          run,
@@ -91,6 +95,7 @@ func run(c *cli.Context) error {
 		PlayerCount: 2,
 		Fps:         c.Int("fps"),
 		ASCIIOnly:   c.Bool("ascii-only"),
+		LowColor:    c.Bool("low-color"),
 	})
 
 	// start game

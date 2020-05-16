@@ -13,13 +13,15 @@ type Terrain struct {
 	line []int
 	// height is max height of hill top
 	height int
+	// lowColor turns only 8 colors mode on
+	lowColor bool
 }
 
 // Draw draws terrain
 func (t *Terrain) Draw(s *tl.Screen) {
 	for x, baseY := range t.line {
 		for y := baseY; y <= t.height; y++ {
-			s.RenderCell(x, y, &tl.Cell{Fg: chooseColor(y - baseY), Ch: '█'})
+			s.RenderCell(x, y, &tl.Cell{Fg: chooseColor(y-baseY, t.lowColor), Ch: '█'})
 		}
 	}
 }
@@ -50,8 +52,12 @@ func (t *Terrain) GetColliders() []*TerrainColumn {
 var palette = []int{41, 35, 29, 23}
 
 // chooseColor selects color from palette for given height
-// the idea here is make each deeper level wider than level above
-func chooseColor(height int) tl.Attr {
+// if lowColor mode is on it will return just one color all the time
+// otherwise it will create gradient with each deeper level wider than level above
+func chooseColor(height int, lowColor bool) tl.Attr {
+	if lowColor {
+		return tl.ColorGreen
+	}
 	idx := int(math.Sqrt(float64(height+1))) - 1
 	if idx >= len(palette) {
 		idx = len(palette) - 1

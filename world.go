@@ -28,6 +28,7 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 		Height:    o.Height,
 		Roughness: 7.5,
 	})
+	terrain.lowColor = game.options.LowColor
 
 	// create clouds
 	clouds := GenerateClouds(&CloudsGenerator{seed: o.Seed, width: o.Width, height: o.Height})
@@ -39,7 +40,7 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 			game.players[0],
 			terrain.GetPositionOn(10 + rnd.Intn(10)),
 			0,
-			tl.RgbTo256Color(200, 0, 0),
+			tl.ColorRed,
 			game.options.ASCIIOnly,
 		),
 		NewTank(

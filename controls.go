@@ -151,7 +151,7 @@ var scoreFooter = strings.TrimSpace(`
 // Draw controls
 func (c *Controls) Draw(s *tl.Screen) {
 	if c.showInfo {
-		drawMessage(infoText, s)
+		drawMessage(infoText, s, c.game.options.LowColor)
 	}
 	if c.showScore {
 		b := &strings.Builder{}
@@ -161,14 +161,18 @@ func (c *Controls) Draw(s *tl.Screen) {
 		}
 		fmt.Fprintln(b)
 		fmt.Fprint(b, scoreFooter)
-		drawMessage(b.String(), s)
+		drawMessage(b.String(), s, c.game.options.LowColor)
 	}
 }
 
 // draw message box with given text
-func drawMessage(message string, s *tl.Screen) {
+func drawMessage(message string, s *tl.Screen, lowColor bool) {
 	bg := tl.RgbTo256Color(50, 50, 50)
 	fg := tl.RgbTo256Color(200, 200, 200)
+	if lowColor {
+		bg = tl.ColorBlack
+		fg = tl.ColorWhite
+	}
 	info := NewMessage(message, fg, bg)
 	MoveToScreenCenter(info, s)
 	info.Draw(s)

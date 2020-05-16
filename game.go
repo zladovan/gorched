@@ -38,6 +38,8 @@ type GameOptions struct {
 	Fps int
 	// AsciiOnly identifies that only ASCII characters can be used for all graphics
 	ASCIIOnly bool
+	// LowColor identifies that only 8 colors can be used for all graphics
+	LowColor bool
 }
 
 // NewGame creates new game object.
