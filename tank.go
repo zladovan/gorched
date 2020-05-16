@@ -20,20 +20,39 @@ type Tank struct {
 	power float64
 	// color of this tank
 	color tl.Attr
-	// if true tank was already hit and it's out of game
-	isDead bool
-	// if true shooting power is increasing and tank is preparing to shoot
-	isLoading bool
-	// if true tank is shootin now
-	isShooting bool
-	// if true tank cannot shot now because it's waiting for bullet finishes his path
-	cannotShoot bool
+	// state describes the current state of Tank
+	state TankState
+	// // if true tank was already hit and it's out of game
+	// isDead bool
+	// // if true shooting power is increasing and tank is preparing to shoot
+	// isLoading bool
+	// // if true tank is shootin now
+	// isShooting bool
+	// // if true tank cannot shot now because it's waiting for bullet finishes his path
+	// cannotShoot bool
+
 	// callback called when shooted bullet finishes his path
 	onShootingFinished func()
 	// label is used to display info about angle, power or to show some message
 	label     *Label
 	asciiOnly bool
 }
+
+// TankState describes the state of Tank
+type TankState uint8
+
+const (
+	// Idle is the state when tank is doing nothing but it's ready to go
+	Idle TankState = iota
+	// Loading is the state when tank is preparing to shoot and it's power is changing
+	Loading
+	// Shooting is the state when tank will shoot a bullet
+	Shooting
+	// Waiting is the state when tank is waiting for his bullet to hit some target, it cannot shoot again yet
+	Waiting
+	// Dead is the state after tank was hit and he is out of game
+	Dead
+)
 
 // NewTank creates tank for given player.
 func NewTank(player *Player, position Position, angle int, color tl.Attr, asciiOnly bool) *Tank {
@@ -206,23 +225,18 @@ func (t *Tank) updateAngle(change int) {
 // Shoot will start loading when called first time and shoot bullet when started second time.
 // Given onFinish callback is called  when shooted bullet finishes his path and hit to some obstacle or disapears out of world.
 func (t *Tank) Shoot(onFinish func()) {
-	// TODO: clenup
-	if t.cannotShoot {
-		return
-	}
-	if t.isLoading {
-		// 2nd call = shoot bullet
-		t.isLoading = false
-		t.isShooting = true
-		t.cannotShoot = true
+	switch t.state {
+	case Idle:
+		t.state = Loading
+		t.power = 0
+	case Loading:
+		t.state = Shooting
 		t.onShootingFinished = func() {
-			t.cannotShoot = false
+			if t.state != Dead {
+				t.state = Idle
+			}
 			onFinish()
 		}
-	} else if !t.isShooting {
-		// 1st call start loading
-		t.isLoading = true
-		t.power = 0
 	}
 }
 
@@ -244,14 +258,14 @@ func (t *Tank) Hit() {
 
 // TakeDamage should be called when this tank was hit by some enemy
 func (t *Tank) TakeDamage() {
-	t.isDead = true
+	t.state = Dead
 	t.player.takes++
 	t.Entity.SetCanvas(createDeadCanvas(t.color))
 }
 
 // IsAlive returns wether this tank is still in game
 func (t *Tank) IsAlive() bool {
-	return !t.isDead
+	return t.state != Dead
 }
 
 // Tick is not used now
@@ -262,14 +276,13 @@ func (t *Tank) Draw(s *tl.Screen) {
 	// draw underlying entity
 	t.Entity.Draw(s)
 
-	// create new bullet if tank is shooting
-	if t.isShooting {
+	switch t.state {
+	case Shooting:
+		// create new bullet
 		s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), t.power, t.angle, t.onShootingFinished))
-		t.isShooting = false
-	}
-
-	// increase shooting power if tank is loading
-	if t.isLoading {
+		t.state = Waiting
+	case Loading:
+		// increase shooting power
 		// idea is that increase should be faster for each next 5 points
 		t.power += (10 + t.power/5) * s.TimeDelta()
 		if t.power >= 100 {
