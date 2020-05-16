@@ -24,7 +24,7 @@ Gorched currently has only one mode where two players are playing locally agains
 
 ### Controls
 
-- <kbd>→</kbd> <kbd>←</kbd> change angle of cannon
+- <kbd>←</kbd> <kbd>→</kbd> change angle of cannon
 - <kbd>SPACE</kbd> start loading (1st hit) and shoot (2nd hit)
 - <kbd>Ctrl</kbd>+<kbd>C</kbd> exit game 
 - <kbd>Ctrl</kbd>+<kbd>R</kbd> restart current round
