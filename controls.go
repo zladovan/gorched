@@ -117,13 +117,13 @@ const infoText = `
 ║                ║ ╦║ ║├┬┘│  ├─┤├┤  ││                ║
 ║                ╚═╝╚═╝┴└─└─┘┴ ┴└─┘─┴┘                ║
 ║                                                     ║
-║ 🢠  🢡     change cannon angle                        ║
-║ SPACE    start loading (1st) and shoot (2nd)        ║
-║ Ctrl+C   exit game                                  ║
-║ Ctrl+R   restart current round                      ║
-║ Ctrl+N   start next round                           ║
-║   S      show score                                 ║
-║   H      show help                                  ║
+║ Left / Right   change cannon angle                  ║
+║ SPACE          start loading (1st) and shoot (2nd)  ║
+║ Ctrl+C         exit game                            ║
+║ Ctrl+R         restart current round                ║
+║ Ctrl+N         start next round                     ║
+║   S            show score                           ║
+║   H            show help                            ║
 ║                                                     ║
 ║                  © 2020, Zladovan                   ║
 ╚═════════════════════════════════════════════════════╝

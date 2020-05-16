@@ -13,7 +13,7 @@ type WorldOptions struct {
 	// Height of game world in number of console pixels (cells)
 	Height int
 	// Seed is number used as random seed and if it is reused it allows to create same game looking game world with same positions for players
-	Seed        int64
+	Seed int64
 }
 
 // NewWorld creates new game world with all entities 
@@ -40,12 +40,14 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 			terrain.GetPositionOn(10 + rnd.Intn(10)),
 			0,
 			tl.RgbTo256Color(200, 0, 0),
+			game.options.ASCIIOnly,
 		),
 		NewTank(
 			game.players[1],
 			terrain.GetPositionOn(o.Width - 10 - rnd.Intn(10)),
 			180,
 			tl.ColorBlack,
+			game.options.ASCIIOnly,
 		),
 	}
 	

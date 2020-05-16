@@ -31,18 +31,32 @@ type Tank struct {
 	// callback called when shooted bullet finishes his path
 	onShootingFinished func()
 	// label is used to display info about angle, power or to show some message
-	label *Label
+	label     *Label
+	asciiOnly bool
 }
 
 // NewTank creates tank for given player.
-func NewTank(player *Player, position Position, angle int, color tl.Attr) *Tank {
+func NewTank(player *Player, position Position, angle int, color tl.Attr, asciiOnly bool) *Tank {
 	return &Tank{
-		Entity: tl.NewEntityFromCanvas(position.x-2, position.y-3, *createCanvas(angle, color)),
-		player: player,
-		angle:  angle,
-		color:  color,
-		label:  NewLabel(position.x+1, position.y-4, color),
+		Entity:    tl.NewEntityFromCanvas(position.x-2, position.y-3, *createCanvas(angle, color, asciiOnly)),
+		player:    player,
+		angle:     angle,
+		color:     color,
+		label:     NewLabel(position.x+1, position.y-4, color),
+		asciiOnly: asciiOnly,
 	}
+}
+
+// create canvas with tank model
+func createCanvas(angle int, color tl.Attr, asciiOnly bool) *tl.Canvas {
+	canvas := tl.NewCanvas(6, 3)
+	p := &Printer{canvas: &canvas, fg: color}
+	if asciiOnly {
+		printModelAsciiOnly(p, angle)
+	} else {
+		printModel(p, angle)
+	}
+	return &canvas
 }
 
 // Draw tank in one of the folowing positions depending on it's angle
@@ -74,10 +88,7 @@ func NewTank(player *Player, position Position, angle int, color tl.Attr) *Tank 
 // "▂▂▄"		 165 - 180
 // "  [██]"
 // "  ◥@@◤"
-func createCanvas(angle int, color tl.Attr) *tl.Canvas {
-	canvas := tl.NewCanvas(6, 3)
-	p := &Printer{canvas: &canvas, fg: color}
-
+func printModel(p *Printer, angle int) {
 	// Draw cannon
 	switch {
 	case angle < 15:
@@ -101,8 +112,61 @@ func createCanvas(angle int, color tl.Attr) *tl.Canvas {
 
 	// Draw chasis
 	p.Write(1, 2, "◥@@◤")
+}
 
-	return &canvas
+// Draw tank using only ASCII characters in one of the folowing positions depending on it's angle
+//
+// "  ▄▬■"		 0 - 14
+// "[██]"
+// "{@@}"
+//
+// "  ▄▬▀"		15 - 44
+// "[██]"
+// "{@@}"
+//
+// "  ▄▀ "		45 - 74
+// "[██]"
+// "{@@}"
+//
+// "  ▄ "		 75 - 104
+// "[██]"
+// "{@@}"
+//
+// " ▀▄"		105 - 134
+// "  [██]"
+// "  {@@}"
+//
+// "▀▬▄"		135 - 164
+// "  [██]"
+// "  {@@}"
+//
+// ■▬▄"		 165 - 180
+// "  [██]"
+// "  {@@}"
+func printModelAsciiOnly(p *Printer, angle int) {
+	// Draw cannon
+	switch {
+	case angle < 15:
+		p.Write(3, 0, "▄▬■")
+	case angle < 45:
+		p.Write(3, 0, "▄▬▀")
+	case angle < 75:
+		p.Write(3, 0, "▄▀")
+	case angle < 105:
+		p.Write(3, 0, "▄")
+	case angle < 135:
+		p.Write(0, 0, " ▀▄")
+	case angle < 165:
+		p.Write(0, 0, "▀▬▄")
+	case angle < 181:
+		p.Write(0, 0, "■▬▄")
+	}
+
+	// Draw body
+	p.Write(1, 1, "[██]")
+
+	// Draw chasis
+	p.Write(1, 2, "{@@}")
 }
 
 // draw dead tank
@@ -121,13 +185,14 @@ func (t *Tank) MoveUp() {
 	t.updateAngle(1)
 }
 
-// MoveUp decrease cannon's angle
+// MoveDown decrease cannon's angle
 func (t *Tank) MoveDown() {
 	t.updateAngle(-1)
 }
 
 // updates cannon's angle by given change
 func (t *Tank) updateAngle(change int) {
+	// TODO: angle should be updated by delta time to avoid lags
 	t.angle += change
 	if t.angle > 180 {
 		t.angle = 180
@@ -135,7 +200,7 @@ func (t *Tank) updateAngle(change int) {
 		t.angle = 0
 	}
 	t.label.ShowNumber(t.angle)
-	t.Entity.SetCanvas(createCanvas(t.angle, t.color))
+	t.Entity.SetCanvas(createCanvas(t.angle, t.color, t.asciiOnly))
 }
 
 // Shoot will start loading when called first time and shoot bullet when started second time.
@@ -189,7 +254,7 @@ func (t *Tank) IsAlive() bool {
 	return !t.isDead
 }
 
-// Not used now
+// Tick is not used now
 func (t *Tank) Tick(e tl.Event) {}
 
 // Draw tank

@@ -42,6 +42,10 @@ func main() {
 				Usage: "Screen framerate, use lower values to reduce system resources usage",
 				Value: 40,
 			},
+			&cli.BoolFlag{
+				Name:  "ascii-only",
+				Usage: "Use only ASCII characters to draw graphics",
+			},
 		},
 		HideHelpCommand: true,
 		Action:          run,
@@ -86,6 +90,7 @@ func run(c *cli.Context) error {
 		Seed:        seed,
 		PlayerCount: 2,
 		Fps:         c.Int("fps"),
+		ASCIIOnly:   c.Bool("ascii-only"),
 	})
 
 	// start game

@@ -36,6 +36,8 @@ type GameOptions struct {
 	Seed int64
 	// Fps sets screen framerate
 	Fps int
+	// AsciiOnly identifies that only ASCII characters can be used for all graphics
+	ASCIIOnly bool
 }
 
 // NewGame creates new game object.
