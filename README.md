@@ -2,7 +2,7 @@
 
 [![Run on Repl.it](https://repl.it/badge/github/zladovan/gorched)](http://gorched.zladovan.repl.run/)
 
-Gorched is terminal based game written in [GO](https://golang.org/) inspired by "The Mother of all games" [Scorched Earth](https://en.wikipedia.org/wiki/Scorched_Earth_(video_game)).
+Gorched is terminal based game written in [Go](https://golang.org/) inspired by "The Mother of all games" [Scorched Earth](https://en.wikipedia.org/wiki/Scorched_Earth_(video_game)).
 
 ![showcase](showcase.gif "Showcase recorded from terminal output")
 
@@ -48,4 +48,4 @@ The exact colors used in the game depends on your terminal support and settings.
 
 Gorched is using [termloop](https://github.com/JoelOtter/termloop) as game engine.
 
-Procedural generation is based on OpenSimplex noise implemented in GO by [opensimplex-go](https://github.com/ojrac/opensimplex-go]).
+Procedural generation is based on OpenSimplex noise implemented in Go by [opensimplex-go](https://github.com/ojrac/opensimplex-go]).
