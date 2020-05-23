@@ -25,6 +25,7 @@ type Controls struct {
 	showScore bool
 }
 
+// Tick handles all key events
 func (c *Controls) Tick(e tl.Event) {
 	// TODO: simplify
 

@@ -34,7 +34,7 @@ func (l *Label) Show(s string) {
 	l.Text.SetPosition(l.position.x-len(s)/2, l.position.y)
 }
 
-// Show sets some number as text.
+// ShowNumber sets some number as text.
 // See Show().
 func (l *Label) ShowNumber(i int) {
 	l.Show(fmt.Sprintf("%d", i))

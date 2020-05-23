@@ -67,7 +67,7 @@ func MoveToScreenCenter(e *tl.Entity, s *tl.Screen) {
 	e.SetPosition(sw/2-w/2, sh/2-h/2)
 }
 
-// DrawPallete draws all available colors as column with 6 colors per line.
+// DrawPallette draws all available colors as column with 6 colors per line.
 // Given shift will change starting color and will result in printing less than 256 colors.
 // Debug only !
 func DrawPallette(s *tl.Screen, shift int) {
