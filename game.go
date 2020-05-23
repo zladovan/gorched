@@ -40,6 +40,8 @@ type GameOptions struct {
 	ASCIIOnly bool
 	// LowColor identifies that only 8 colors can be used for all graphics
 	LowColor bool
+	// Debug turns on debug mode if set to true
+	Debug bool
 }
 
 // NewGame creates new game object.
@@ -49,6 +51,9 @@ func NewGame(o GameOptions) *Game {
 	game.options = o
 	game.engine = tl.NewGame()
 	game.engine.Screen().SetFps(float64(o.Fps))
+	if o.Debug {
+		Debug.Attach(game.engine)
+	}
 	game.players = make([]*Player, o.PlayerCount)
 	for pi := range game.players {
 		game.players[pi] = &Player{}

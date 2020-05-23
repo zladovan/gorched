@@ -16,11 +16,11 @@ type WorldOptions struct {
 	Seed int64
 }
 
-// NewWorld creates new game world with all entities 
+// NewWorld creates new game world with all entities
 func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	// random positions in the world are seeded too
 	rnd := rand.New(rand.NewSource(o.Seed))
-	
+
 	// create terrain
 	terrain := GenerateTerrain(&TerrainGenerator{
 		Seed:      o.Seed,
@@ -38,25 +38,25 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	tanks := []*Tank{
 		NewTank(
 			game.players[0],
-			terrain.GetPositionOn(10 + rnd.Intn(10)),
+			terrain.GetPositionOn(10+rnd.Intn(10)),
 			0,
 			tl.ColorRed,
 			game.options.ASCIIOnly,
 		),
 		NewTank(
 			game.players[1],
-			terrain.GetPositionOn(o.Width - 10 - rnd.Intn(10)),
+			terrain.GetPositionOn(o.Width-10-rnd.Intn(10)),
 			180,
 			tl.ColorBlack,
 			game.options.ASCIIOnly,
 		),
 	}
-	
+
 	// create controls
 	controls := &Controls{
-		game: game, 
-		tanks: tanks, 
-		showInfo: game.CurrentRound() == 1,
+		game:            game,
+		tanks:           tanks,
+		showInfo:        game.CurrentRound() == 1,
 		activeTankIndex: game.startingPlayerIndex,
 	}
 
@@ -73,6 +73,8 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 		level.AddEntity(t)
 	}
 	level.AddEntity(controls)
+
+	Debug.Logf("New world created width=%d height=%d seed=%d", o.Width, o.Height, o.Seed)
 
 	return level
 }

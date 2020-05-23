@@ -271,6 +271,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 	switch t.state {
 	case Shooting:
 		// create new bullet
+		Debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
 		s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), t.power, t.angle, t.onShootingFinished))
 		t.state = Waiting
 	case Loading:
