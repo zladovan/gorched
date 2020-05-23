@@ -1,6 +1,7 @@
 before:
   hooks:
     - go mod tidy
+
 builds:
   -
     main: ./cmd/main.go
@@ -10,6 +11,7 @@ builds:
       - linux
       - darwin
       - windows
+
 archives:
   - 
     replacements:
@@ -22,6 +24,7 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+
 changelog:
   sort: asc
   filters:
@@ -30,3 +33,21 @@ changelog:
     - '^docs?:'
     - '^test:'
     - '^refactor:'
+
+snapcrafts:
+  -
+    name: gorched
+    publish: true
+    summary: Terminal based game inspired by "The Mother of all games" Scorched Earth
+    description:  |
+      **Gorched** is multiplayer game rendered directly into your terminal.  The goal is to find out correct angle and power to hit the enemy tank.
+
+      The inspiration for this game comes from "The Mother of all games" Scorched Earth.
+
+      **Features**
+
+        * rendered in terminal
+        * ASCII graphics (actually few unicode symbols were used in tank sprite)
+        * procedurally generated world
+        * turn based multiplayer
+    license: MIT
