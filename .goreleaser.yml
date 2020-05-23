@@ -57,10 +57,10 @@ brews:
     name: gorched
     github:
       owner: zladovan
-      name: homebrew-gorched
+      name: homebrew-tap
     folder: Formula
     homepage: https://github.com/zladovan/gorched
-    description: Terminal based game inspired by "The Mother of all games" Scorched Earth
+    description: Terminal based game inspired by \"The Mother of all games\" Scorched Earth
 
 scoop:
   bucket:
