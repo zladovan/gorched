@@ -61,3 +61,11 @@ brews:
     folder: Formula
     homepage: https://github.com/zladovan/gorched
     description: Terminal based game inspired by "The Mother of all games" Scorched Earth
+
+scoop:
+  bucket:
+    owner: zladovan
+    name: scoop-bucket
+  homepage: https://github.com/zladovan/gorched
+  description: Terminal based game inspired by "The Mother of all games" Scorched Earth
+  license: MIT
