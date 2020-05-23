@@ -1,6 +1,7 @@
 # Gorched
 
 [![Run on Repl.it](https://repl.it/badge/github/zladovan/gorched)](http://gorched.zladovan.repl.run/)
+[![gorched](https://snapcraft.io//gorched/badge.svg)](https://snapcraft.io/gorched)
 
 Gorched is terminal based game written in [Go](https://golang.org/) inspired by "The Mother of all games" [Scorched Earth](https://en.wikipedia.org/wiki/Scorched_Earth_(video_game)).
 
@@ -17,8 +18,32 @@ Gorched is terminal based game written in [Go](https://golang.org/) inspired by 
 
 ## Installation
 
+### General
+
 Download archive for your platform from [releases page](https://github.com/zladovan/gorched/releases/latest) and unpack it to some directory on your file system.
 
+### Linux
+
+If you are using [snap](https://snapcraft.io/docs/installing-snapd) just run:
+    
+    sudo snap install gorched
+
+### MacOS
+
+If you are using [homebrew](https://brew.sh/) just run:
+
+    brew install zladovan/tap/gorched
+
+### Windows
+
+If you are using [scoop](https://scoop.sh/) run:
+
+    scoop bucket add zladovan https://github.com/zladovan/scoop-bucket
+    scoop install gorched
+
+## How to start
+
+Just type `gorched` in terminal or run unpacked binary named `gorched` respectively `gorched.exe`.
 
 ## How to play
 
