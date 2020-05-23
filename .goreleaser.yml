@@ -51,3 +51,13 @@ snapcrafts:
         * procedurally generated world
         * turn based multiplayer
     license: MIT
+
+brews:
+  -
+    name: gorched
+    github:
+      owner: zladovan
+      name: homebrew-gorched
+    folder: Formula
+    homepage: https://github.com/zladovan/gorched
+    description: Terminal based game inspired by "The Mother of all games" Scorched Earth
