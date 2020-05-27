@@ -82,7 +82,8 @@ func GenerateTerrain(g *TerrainGenerator) *Terrain {
 	noise := osx.NewNormalized(g.Seed)
 	heights := make([]int, g.Width)
 	for x := 0; x < g.Width; x++ {
-		heights[x] = int(float64(g.Height) * noise.Eval2(g.Roughness/float64(g.Width)*float64(x), 0.5))
+		// reduce height to keep 5 cells space for tank on the highest hill top
+		heights[x] = 5 + int(float64(g.Height-5)*noise.Eval2(g.Roughness/float64(g.Width)*float64(x), 0.5))
 	}
 	return &Terrain{line: heights, height: g.Height}
 }
