@@ -33,6 +33,16 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	// create clouds
 	clouds := GenerateClouds(&CloudsGenerator{seed: o.Seed, width: o.Width, height: o.Height})
 
+	// create trees
+	trees := GenerateWood(&WoodGenerator{
+		Line:     terrain.line,
+		Seed:     o.Seed,
+		Density:  0.2,
+		MaxSize:  6,
+		MinSpace: 1,
+		LowColor: game.options.LowColor,
+	})
+
 	// create players
 	// TODO: update for different player counts
 	tanks := []*Tank{
@@ -52,6 +62,13 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 		),
 	}
 
+	// cut the trees around the tanks
+	for _, tank := range tanks {
+		x, y := tank.Position()
+		w, h := tank.Size()
+		trees = trees.CutAround(x, y, w, h)
+	}
+
 	// create controls
 	controls := &Controls{
 		game:            game,
@@ -68,6 +85,9 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	level.AddEntity(terrain)
 	for _, c := range terrain.GetColliders() {
 		level.AddEntity(c)
+	}
+	for _, t := range trees {
+		level.AddEntity(t)
 	}
 	for _, t := range tanks {
 		level.AddEntity(t)

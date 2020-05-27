@@ -4,6 +4,7 @@ import (
 	"math/rand"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/draw"
 )
 
 // Tank represents player's entity.
@@ -60,14 +61,13 @@ func NewTank(player *Player, position Position, angle int, color tl.Attr, asciiO
 
 // create canvas with tank model
 func createCanvas(angle int, color tl.Attr, asciiOnly bool) *tl.Canvas {
-	canvas := tl.NewCanvas(6, 3)
-	p := &Printer{canvas: &canvas, fg: color}
+	p := draw.BlankPrinter(6, 3).WithFg(color)
 	if asciiOnly {
-		printModelAsciiOnly(p, angle)
+		printModelASCIIOnly(p, angle)
 	} else {
 		printModel(p, angle)
 	}
-	return &canvas
+	return p.Canvas
 }
 
 // Draw tank in one of the folowing positions depending on it's angle
@@ -99,7 +99,7 @@ func createCanvas(angle int, color tl.Attr, asciiOnly bool) *tl.Canvas {
 // "▂▂▄"		 165 - 180
 // "  [██]"
 // "  ◥@@◤"
-func printModel(p *Printer, angle int) {
+func printModel(p *draw.Printer, angle int) {
 	// Draw cannon
 	switch {
 	case angle < 15:
@@ -154,7 +154,7 @@ func printModel(p *Printer, angle int) {
 // ■▬▄"		 165 - 180
 // "  [██]"
 // "  {@@}"
-func printModelAsciiOnly(p *Printer, angle int) {
+func printModelASCIIOnly(p *draw.Printer, angle int) {
 	// Draw cannon
 	switch {
 	case angle < 15:
@@ -182,13 +182,12 @@ func printModelAsciiOnly(p *Printer, angle int) {
 
 // draw dead tank
 func createDeadCanvas(color tl.Attr) *tl.Canvas {
-	canvas := tl.NewCanvas(6, 3)
-	p := &Printer{canvas: &canvas, fg: color}
+	p := draw.BlankPrinter(6, 3).WithFg(color)
 	p.WriteLines(1, 1, []string{
 		" ▄█▄",
 		"  █",
 	})
-	return &canvas
+	return p.Canvas
 }
 
 // MoveUp increase cannon's angle

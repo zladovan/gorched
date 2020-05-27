@@ -10,7 +10,7 @@ import (
 // Debug provides access to debugging support.
 // By default it is inactive.
 // You need to activate it by attaching it to game engine object (termloop.Game) with function Attach.
-// You can add debug messages to debug with Log resp. Logf functions.
+// You can add debug messages to debug with Log / Logf functions.
 var Debug = debug{}
 
 // debug holds debug related information
