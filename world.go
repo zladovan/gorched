@@ -78,9 +78,12 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	}
 
 	// create level with all entities
-	level := tl.NewBaseLevel(tl.Cell{
-		Bg: tl.ColorBlue,
-	})
+	bg := tl.Attr(111)
+	if game.options.LowColor {
+		bg = tl.ColorBlue
+	}
+	level := tl.NewBaseLevel(tl.Cell{Bg: bg})
+
 	level.AddEntity(clouds)
 	level.AddEntity(terrain)
 	for _, c := range terrain.GetColliders() {
