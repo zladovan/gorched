@@ -27,15 +27,15 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 		Width:     o.Width,
 		Height:    o.Height,
 		Roughness: 7.5,
+		LowColor:  game.options.LowColor,
 	})
-	terrain.lowColor = game.options.LowColor
 
 	// create clouds
 	clouds := GenerateClouds(&CloudsGenerator{seed: o.Seed, width: o.Width, height: o.Height})
 
 	// create trees
 	trees := GenerateWood(&WoodGenerator{
-		Line:     terrain.line,
+		Line:     terrain.Line(),
 		Seed:     o.Seed,
 		Density:  0.2,
 		MaxSize:  6,
@@ -48,25 +48,26 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	tanks := []*Tank{
 		NewTank(
 			game.players[0],
-			terrain.GetPositionOn(10+rnd.Intn(10)),
+			terrain.PositionOn(10+rnd.Intn(10)),
 			0,
 			tl.ColorRed,
 			game.options.ASCIIOnly,
 		),
 		NewTank(
 			game.players[1],
-			terrain.GetPositionOn(o.Width-10-rnd.Intn(10)),
+			terrain.PositionOn(o.Width-10-rnd.Intn(10)),
 			180,
 			tl.ColorBlack,
 			game.options.ASCIIOnly,
 		),
 	}
 
-	// cut the trees around the tanks
+	// cut the trees and terrain around the tanks
 	for _, tank := range tanks {
 		x, y := tank.Position()
 		w, h := tank.Size()
 		trees = trees.CutAround(x, y, w, h)
+		terrain.CutAround(x, y+h, w)
 	}
 
 	// create controls
@@ -83,10 +84,8 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 		bg = tl.ColorBlue
 	}
 	level := tl.NewBaseLevel(tl.Cell{Bg: bg})
-
 	level.AddEntity(clouds)
-	level.AddEntity(terrain)
-	for _, c := range terrain.GetColliders() {
+	for _, c := range terrain.Entities() {
 		level.AddEntity(c)
 	}
 	for _, t := range trees {

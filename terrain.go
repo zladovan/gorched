@@ -5,47 +5,75 @@ import (
 
 	tl "github.com/JoelOtter/termloop"
 	osx "github.com/ojrac/opensimplex-go"
+	"github.com/zladovan/gorched/draw"
 )
 
 // Terrain represents "hills" in the game world.
+// Terrain consists of multiple columns with width 1 cell pixel.
+// Use NewTerrain to create new instance if you already have terrain line.
+// Use GenerateTerrain to create random terrain.
 type Terrain struct {
-	// line is array where index is x coordinate and value is top y coordinate
-	line []int
-	// height is max height of hill top
-	height int
-	// lowColor turns only 8 colors mode on
-	lowColor bool
+	// columns holds all column entities which is terrain split to
+	columns []*TerrainColumn
 }
 
-// Draw draws terrain
-func (t *Terrain) Draw(s *tl.Screen) {
-	for x, baseY := range t.line {
-		for y := baseY; y <= t.height; y++ {
-			s.RenderCell(x, y, &tl.Cell{Bg: chooseColor(y-baseY, t.lowColor), Ch: ' '})
+// NewTerrain creates new Terrain for given terrain line and height.
+// Terrain line is array where index is x coordinate and value is top y coordinate.
+// Terrain height is maximum y value of terrain (lowest on the screen).
+func NewTerrain(line []int, height int, lowColor bool) *Terrain {
+	terrain := new(Terrain)
+	terrain.columns = make([]*TerrainColumn, len(line))
+
+	// create column for each point in terrain line
+	for x, baseY := range line {
+		p := draw.BlankPrinter(1, height-baseY)
+
+		// print each pixel of column along it's height on canvas
+		for y := baseY; y <= height; y++ {
+			p.Bg = chooseColor(y-baseY, lowColor)
+			p.WritePoint(0, y-baseY, ' ')
+		}
+
+		// use canvas to create new column
+		terrain.columns[x] = NewTerrainColumn(terrain, x, baseY, p.Canvas)
+	}
+
+	return terrain
+}
+
+// HeightOn returns y coordinate which will be "on the terrain" for given x
+func (t *Terrain) HeightOn(x int) int {
+	_, y := t.columns[x].Position()
+	return y
+}
+
+// PositionOn returns position which will be "on the terrain" for given x
+func (t *Terrain) PositionOn(x int) Position {
+	return Position{x, t.HeightOn(x)}
+}
+
+// Entities returns all entities (columns) which is terrain made of
+func (t *Terrain) Entities() []*TerrainColumn {
+	return t.columns
+}
+
+// CutAround will modify terrain line between x and x+w to be above given y
+func (t *Terrain) CutAround(x, y, w int) {
+	for i := x; i < x+w; i++ {
+		colY := t.HeightOn(i)
+		if colY < y {
+			t.columns[i].CutFromTop(y - colY)
 		}
 	}
 }
 
-// Tick is not used yet
-func (t *Terrain) Tick(e tl.Event) {}
-
-// GetHeightOn returns y coordinate which will be "on the terrain" for given x
-func (t *Terrain) GetHeightOn(x int) int {
-	return t.line[x]
-}
-
-// GetPositionOn returns position which will be "on the terrain" for given x
-func (t *Terrain) GetPositionOn(x int) Position {
-	return Position{x, t.GetHeightOn(x)}
-}
-
-// GetColliders returns all colliders needed to calculate collisions with terrain
-func (t *Terrain) GetColliders() []*TerrainColumn {
-	columns := make([]*TerrainColumn, len(t.line))
-	for x, baseY := range t.line {
-		columns[x] = NewTerrainColumn(t, x, baseY, t.height-baseY)
+// Line returns terrain line array where index is x coordinate and value is top y coordinate.
+func (t *Terrain) Line() []int {
+	line := make([]int, len(t.columns))
+	for x := range t.columns {
+		line[x] = t.HeightOn(x)
 	}
-	return columns
+	return line
 }
 
 // palette holds colors of terrain - shades of green
@@ -75,6 +103,8 @@ type TerrainGenerator struct {
 	Height int
 	// Roughness configures how much will be terrain "wavy"
 	Roughness float64
+	// LowColor generates terrain in only 8 colors mode when true
+	LowColor bool
 }
 
 // GenerateTerrain will generate new terrain using noise function (open simplex)
@@ -85,22 +115,24 @@ func GenerateTerrain(g *TerrainGenerator) *Terrain {
 		// reduce height to keep 5 cells space for tank on the highest hill top
 		heights[x] = 5 + int(float64(g.Height-5)*noise.Eval2(g.Roughness/float64(g.Width)*float64(x), 0.5))
 	}
-	return &Terrain{line: heights, height: g.Height}
+	return NewTerrain(heights, g.Height, g.LowColor)
 }
 
 // TerrainColumn is collider represented by 1 console pixel wide rectangle with height for it's corresponding part in terrain.
 type TerrainColumn struct {
 	*tl.Entity
 	terrain *Terrain
+	canvas  *tl.Canvas
 }
 
 // NewTerrainColumn creates new TerrainColumn collider for given terrain.
 // Position defined by x and y should be from terrain line.
 // Height is the distance between terrain line and the bottom for this column.
-func NewTerrainColumn(terrain *Terrain, x, y, height int) *TerrainColumn {
+func NewTerrainColumn(terrain *Terrain, x, y int, canvas *tl.Canvas) *TerrainColumn {
 	return &TerrainColumn{
-		Entity:  tl.NewEntity(x, y, 1, height),
+		Entity:  tl.NewEntityFromCanvas(x, y, *canvas),
 		terrain: terrain,
+		canvas:  canvas,
 	}
 }
 
@@ -112,4 +144,16 @@ func (t *TerrainColumn) Position() (int, int) {
 // Size returns size of collider
 func (t *TerrainColumn) Size() (int, int) {
 	return t.Entity.Size()
+}
+
+// CutFromTop will cut h pixel cells from top of this column.
+func (t *TerrainColumn) CutFromTop(h int) {
+	// update canvas
+	newCanvas := *t.canvas
+	newCanvas[0] = newCanvas[0][h:]
+	t.canvas = &newCanvas
+
+	// update entity
+	x, y := t.Position()
+	t.Entity = tl.NewEntityFromCanvas(x, y+h, newCanvas)
 }
