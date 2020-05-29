@@ -29,6 +29,14 @@ type Controls struct {
 func (c *Controls) Tick(e tl.Event) {
 	// TODO: simplify
 
+	// TODO: show some message box after resize about restart round is needed to be applied
+	// on resize update game options to be applied on round restart or on next round
+	if e.Type == tl.EventResize {
+		w, h := c.game.engine.Screen().Size()
+		c.game.options.Width = w
+		c.game.options.Height = h
+	}
+
 	// when info is show it's just possible to hide it
 	if c.showInfo {
 		if e.Type == tl.EventKey {
