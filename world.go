@@ -6,6 +6,14 @@ import (
 	tl "github.com/JoelOtter/termloop"
 )
 
+// World represents game world with all entities.
+// It extends from termloop.BaseLevel so it can be added to the screen as termloop.Level.
+type World struct {
+	*tl.BaseLevel
+	// entitiesToRemove holds references to entities which will be removed on next Tick
+	entitiesToRemove []tl.Drawable
+}
+
 // WorldOptions provide configuration needed for generating game world (one round).
 type WorldOptions struct {
 	// Width of game world in number of console pixels (cells)
@@ -17,7 +25,7 @@ type WorldOptions struct {
 }
 
 // NewWorld creates new game world with all entities
-func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
+func NewWorld(game *Game, o WorldOptions) *World {
 	// random positions in the world are seeded too
 	rnd := rand.New(rand.NewSource(o.Seed))
 
@@ -83,20 +91,36 @@ func NewWorld(game *Game, o WorldOptions) *tl.BaseLevel {
 	if game.options.LowColor {
 		bg = tl.ColorBlue
 	}
-	level := tl.NewBaseLevel(tl.Cell{Bg: bg})
-	level.AddEntity(clouds)
+	world := &World{BaseLevel: tl.NewBaseLevel(tl.Cell{Bg: bg})}
+	world.AddEntity(clouds)
 	for _, c := range terrain.Entities() {
-		level.AddEntity(c)
+		world.AddEntity(c)
 	}
 	for _, t := range trees {
-		level.AddEntity(t)
+		world.AddEntity(t)
 	}
 	for _, t := range tanks {
-		level.AddEntity(t)
+		world.AddEntity(t)
 	}
-	level.AddEntity(controls)
+	world.AddEntity(controls)
 
 	Debug.Logf("New world created width=%d height=%d seed=%d", o.Width, o.Height, o.Seed)
 
-	return level
+	return world
+}
+
+// RemoveEntity only registers entity to remove.
+// Entity will be removed in next Tick.
+// This is needed for be able to remove entities from Draw method (where level is accessible).
+func (w *World) RemoveEntity(e tl.Drawable) {
+	w.entitiesToRemove = append(w.entitiesToRemove, e)
+}
+
+// Tick first removes all entity previously registered to be removed.
+// Then calls original Tick logic.
+func (w *World) Tick(e tl.Event) {
+	for _, entity := range w.entitiesToRemove {
+		w.BaseLevel.RemoveEntity(entity)
+	}
+	w.BaseLevel.Tick(e)
 }
