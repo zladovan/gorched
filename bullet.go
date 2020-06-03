@@ -15,6 +15,8 @@ type Bullet struct {
 	x, y float64
 	// velocity
 	vx, vy float64
+	// strength of the explosion
+	strength int
 	// true if bullet hit to something
 	isInCollision bool
 	// will be called when bullet finished his path
@@ -23,7 +25,7 @@ type Bullet struct {
 
 // NewBullet creates new bullet.
 // Given onFinish will be  called when bullet finished his path.
-func NewBullet(shooter *Tank, p Position, speed float64, angle int, onFinish func()) *Bullet {
+func NewBullet(shooter *Tank, p Position, speed float64, angle int, strength int, onFinish func()) *Bullet {
 	theta := 2.0 * math.Pi * (float64(angle) / 360.0)
 	return &Bullet{
 		shooter:  shooter,
@@ -31,6 +33,7 @@ func NewBullet(shooter *Tank, p Position, speed float64, angle int, onFinish fun
 		y:        float64(p.y),
 		vx:       math.Cos(theta) * speed,
 		vy:       math.Sin(theta) * -speed,
+		strength: strength,
 		onFinish: onFinish,
 	}
 }
@@ -107,5 +110,11 @@ func (b *Bullet) Collide(collision tl.Physical) {
 		if target != b.shooter {
 			b.shooter.Hit()
 		}
+	}
+	if target, ok := collision.(*TerrainColumn); ok {
+		bx := int(b.x)
+		by := int(b.y)
+		Debug.Logf("Ground was hit x=%d y=%d", bx, by)
+		target.terrain.MakeHole(bx, by, b.strength)
 	}
 }
