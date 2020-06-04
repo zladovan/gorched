@@ -14,6 +14,8 @@ type Game struct {
 	rounds int
 	// startingPlayerIndex holds index of player which was first on turn in current round
 	startingPlayerIndex int
+	// hud holds games HUD
+	hud *HUD
 }
 
 // Player holds stats for player which are aggregated during whole session.
@@ -49,15 +51,27 @@ type GameOptions struct {
 func NewGame(o GameOptions) *Game {
 	game := &Game{}
 	game.options = o
+
+	// init engine
 	game.engine = tl.NewGame()
 	game.engine.Screen().SetFps(float64(o.Fps))
+
+	// init debug
 	if o.Debug {
 		Debug.Attach(game.engine)
 	}
+
+	// init players
 	game.players = make([]*Player, o.PlayerCount)
 	for pi := range game.players {
 		game.players[pi] = &Player{}
 	}
+
+	// init HUD with info visible at startup
+	game.hud = NewHUD(game)
+	game.hud.ShowInfo()
+	game.engine.Screen().AddEntity(game.hud)
+
 	return game
 }
 
@@ -97,4 +111,9 @@ func (g *Game) LastSeed() int64 {
 // CurrentRound returns number of actual round starting with 1 for the first row.
 func (g *Game) CurrentRound() int {
 	return g.rounds + 1
+}
+
+// Hud returns games HUD
+func (g *Game) Hud() *HUD {
+	return g.hud
 }

@@ -82,7 +82,6 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	controls := &Controls{
 		game:            game,
 		tanks:           tanks,
-		showInfo:        game.CurrentRound() == 1,
 		activeTankIndex: game.startingPlayerIndex,
 	}
 
