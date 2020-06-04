@@ -2,7 +2,6 @@ package gorched
 
 import (
 	"math"
-	"sort"
 	"strings"
 
 	tl "github.com/JoelOtter/termloop"
@@ -18,6 +17,8 @@ import (
 type Tree struct {
 	// it extends from termloop.Entity
 	*tl.Entity
+	// body is physical body of the tree used for falling simulation
+	body *Body
 }
 
 // TreeKind represents the type of tree.
@@ -42,6 +43,10 @@ func NewTree(position Position, kind TreeKind, size int, lowColor bool) *Tree {
 	canvas := createTreeCanvas(kind, size, lowColor)
 	return &Tree{
 		Entity: tl.NewEntityFromCanvas(position.x-len(canvas)/2, position.y-len(canvas[0]), canvas),
+		body: &Body{
+			Position: gmath.Vector2f{X: float64(position.x), Y: float64(position.y)},
+			Mass:     5,
+		},
 	}
 }
 
@@ -332,8 +337,36 @@ func createOakTreeCanvas(size int, lowColor bool) tl.Canvas {
 	return *p.Canvas
 }
 
+// Draw only updates entity position based on physical body and draws it
+func (t *Tree) Draw(s *tl.Screen) {
+	w, h := t.Entity.Size()
+	t.Entity.SetPosition(int(t.body.Position.X)-w/2, int(t.body.Position.Y)-h)
+	t.Entity.Draw(s)
+}
+
 // Size returns 0 to make trees not collidable yet
 func (t *Tree) Size() (int, int) {
+	return 0, 0
+}
+
+// ZIndex return z-index of tree.
+// It should be bigger than z-index of terrain and lower than z-index of tank.
+// Trees with higher position (lower y) will have lower z-index to be far from the screen.
+// Sorting trees by y position will avoid weird looking trunks over crowns.
+func (t *Tree) ZIndex() int {
+	_, y := t.Position()
+	_, h := t.Entity.Size()
+	return 1000 + y + h
+}
+
+// Body returns physical body of the tank used for falling simulation
+func (t *Tree) Body() *Body {
+	return t.body
+}
+
+// BottomLine returns line x coordinates for collision with the ground when falling
+func (t *Tree) BottomLine() (int, int) {
+	// just single point (trunk)
 	return 0, 0
 }
 
@@ -361,7 +394,7 @@ type WoodGenerator struct {
 	LowColor bool
 }
 
-// constats which are too magic to become generator paramters
+// constants which are too magic to become generator paramters
 const (
 	// woodMagicGrouping allows control how tight groups of trees are
 	// when lower values are used (e.g. 0.1) then trees are grouped into groups with tree size changing more gradient-like
@@ -413,18 +446,6 @@ func GenerateWood(g *WoodGenerator) Wood {
 			lastX = x
 		}
 	}
-
-	// sort by y to make trees with higher position (lower y) will be far from the screen
-	// sorting will avoid weird looking trunks over crowns
-	sort.Slice(wood, func(i, j int) bool {
-		a := wood[i]
-		b := wood[j]
-		_, ay := a.Position()
-		_, ah := a.Entity.Size()
-		_, by := b.Position()
-		_, bh := b.Entity.Size()
-		return ay+ah < by+bh
-	})
 
 	return wood
 }

@@ -2,6 +2,7 @@ package gorched
 
 import (
 	"math/rand"
+	"sort"
 
 	tl "github.com/JoelOtter/termloop"
 )
@@ -10,6 +11,8 @@ import (
 // It extends from termloop.BaseLevel so it can be added to the screen as termloop.Level.
 type World struct {
 	*tl.BaseLevel
+	terrain *Terrain
+	physics *Physics
 	// entitiesToRemove holds references to entities which will be removed on next Tick
 	entitiesToRemove []tl.Drawable
 }
@@ -90,7 +93,11 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	if game.options.LowColor {
 		bg = tl.ColorBlue
 	}
-	world := &World{BaseLevel: tl.NewBaseLevel(tl.Cell{Bg: bg})}
+	world := &World{
+		BaseLevel: tl.NewBaseLevel(tl.Cell{Bg: bg}),
+		terrain:   terrain,
+		physics:   &Physics{Gravity: 9.81, Ground: terrain.HeightInside},
+	}
 	world.AddEntity(clouds)
 	for _, c := range terrain.Entities() {
 		world.AddEntity(c)
@@ -115,6 +122,45 @@ func (w *World) RemoveEntity(e tl.Drawable) {
 	w.entitiesToRemove = append(w.entitiesToRemove, e)
 }
 
+// Draw draws all entities in the world.
+// Drawing takes into account z-index of entity which can be specified by implementing ZIndexer interface.
+// Gravity is also applied here as there is access to delta time from screen.
+func (w *World) Draw(s *tl.Screen) {
+	// depthField  will contain entities distributed by z-index
+	depthField := make(map[int][]tl.Drawable, len(w.Entities))
+
+	for _, e := range w.BaseLevel.Entities {
+
+		// apply physics to all entities with bodies
+		if entity, ok := e.(HasBody); ok {
+			w.physics.Apply(entity, s.TimeDelta())
+		}
+
+		// find z-index of entity where 0 is the default
+		zIndex := 0
+		if entity, ok := e.(ZIndexer); ok {
+			zIndex = entity.ZIndex()
+		}
+
+		// add entity to depth field
+		depthField[zIndex] = append(depthField[zIndex], e)
+	}
+
+	// find all different values of z-index and sort them
+	zIndexes := []int{}
+	for z := range depthField {
+		zIndexes = append(zIndexes, z)
+	}
+	sort.Ints(zIndexes)
+
+	// draw entities in order defined by z-index (lower first)
+	for _, z := range zIndexes {
+		for _, e := range depthField[z] {
+			e.Draw(s)
+		}
+	}
+}
+
 // Tick first removes all entity previously registered to be removed.
 // Then calls original Tick logic.
 func (w *World) Tick(e tl.Event) {
@@ -122,4 +168,11 @@ func (w *World) Tick(e tl.Event) {
 		w.BaseLevel.RemoveEntity(entity)
 	}
 	w.BaseLevel.Tick(e)
+}
+
+// ZIndexer if implemented by entity allows to be sorted by z-index.
+// Lower z-index will be drawn first.
+// Zero is used as default value for entities do not implementing ZIndexer.
+type ZIndexer interface {
+	ZIndex() int
 }

@@ -5,6 +5,7 @@ import (
 
 	tl "github.com/JoelOtter/termloop"
 	"github.com/zladovan/gorched/draw"
+	"github.com/zladovan/gorched/gmath"
 )
 
 // Tank represents player's entity.
@@ -15,6 +16,8 @@ type Tank struct {
 	*tl.Entity
 	// player is reference to Player controlling this Tank
 	player *Player
+	// body is physical body of the tank used for falling simulation
+	body *Body
 	// angle of cannon, 0 points to the right, 180 to the left
 	angle int
 	// power which will be used to shoot bullet, can be 0 - 100
@@ -50,8 +53,12 @@ const (
 // NewTank creates tank for given player.
 func NewTank(player *Player, position Position, angle int, color tl.Attr, asciiOnly bool) *Tank {
 	return &Tank{
-		Entity:    tl.NewEntityFromCanvas(position.x-2, position.y-3, *createCanvas(angle, color, asciiOnly)),
-		player:    player,
+		Entity: tl.NewEntityFromCanvas(position.x-2, position.y-3, *createCanvas(angle, color, asciiOnly)),
+		player: player,
+		body: &Body{
+			Position: gmath.Vector2f{X: float64(position.x), Y: float64(position.y)},
+			Mass:     3,
+		},
 		angle:     angle,
 		color:     color,
 		label:     NewLabel(position.x+1, position.y-4, color),
@@ -264,6 +271,14 @@ func (t *Tank) Tick(e tl.Event) {}
 
 // Draw tank
 func (t *Tank) Draw(s *tl.Screen) {
+	// TODO: simplify by creating label with relative position
+	// update entity and label positions based on body position
+	y := int(t.body.Position.Y) - 3
+	t.Entity.SetPosition(int(t.body.Position.X)-2, y)
+	t.label.position.y = y - 1
+	lx, _ := t.label.Text.Position()
+	t.label.Text.SetPosition(lx, t.label.position.y)
+
 	// draw underlying entity
 	t.Entity.Draw(s)
 
@@ -315,4 +330,24 @@ func (t *Tank) Position() (int, int) {
 func (t *Tank) Size() (int, int) {
 	// collider is little bit smaller than 6x3 canvas to do not include cannon edge
 	return 4, 3
+}
+
+// ZIndex return z-index of tank.
+// It should be bigger than z-index of terrain and trees.
+func (t *Tank) ZIndex() int {
+	return 2000
+}
+
+// Body returns physical body of the tank used for falling simulation
+func (t *Tank) Body() *Body {
+	return t.body
+}
+
+// BottomLine returns line x coordinates for collision with the ground when falling
+func (t *Tank) BottomLine() (int, int) {
+	if t.IsAlive() {
+		return 0, 1
+	}
+	// when tank is dead sprite is slimmer
+	return 1, 1
 }

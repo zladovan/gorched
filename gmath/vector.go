@@ -16,3 +16,10 @@ func (v *Vector2i) Distance(u *Vector2i) int {
 func (v *Vector2i) DistanceF(u *Vector2i) float64 {
 	return math.Sqrt(math.Pow(float64(v.X-u.X), 2) + math.Pow(float64(v.Y-u.Y), 2))
 }
+
+// Vector2f represents 2-dimensional vector with float64 components
+type Vector2f struct {
+	X, Y float64
+}
+
+// TODO: add basic operations and conversions between float and int variants

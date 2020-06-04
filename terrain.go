@@ -6,6 +6,7 @@ import (
 	tl "github.com/JoelOtter/termloop"
 	osx "github.com/ojrac/opensimplex-go"
 	"github.com/zladovan/gorched/draw"
+	"github.com/zladovan/gorched/gmath"
 )
 
 // Terrain represents "hills" in the game world.
@@ -46,11 +47,22 @@ func NewTerrain(line []int, height int, lowColor bool) *Terrain {
 
 // HeightOn returns y coordinate which will be "on the terrain" for given x
 func (t *Terrain) HeightOn(x int) int {
+	return t.HeightInside(x, 0)
+}
+
+// HeightInside returns y coordinate which will be "in the terrain" on the nearest column under given y for given x
+// It allows to find y coordinate inside terrain hole.
+func (t *Terrain) HeightInside(x, y int) int {
 	if len(t.columns[x]) == 0 {
 		return t.height
 	}
-	_, y := t.columns[x][0].Position()
-	return y
+	for _, c := range t.columns[x] {
+		_, cy := c.Position()
+		if y <= cy {
+			return cy
+		}
+	}
+	return t.height
 }
 
 // PositionOn returns position which will be "on the terrain" for given x
@@ -148,32 +160,48 @@ func GenerateTerrain(g *TerrainGenerator) *Terrain {
 // TerrainColumn is collider represented by 1 console pixel wide rectangle with height for it's corresponding part in terrain.
 type TerrainColumn struct {
 	*tl.Entity
+	body    *Body
 	terrain *Terrain
 	canvas  *tl.Canvas
 	// isCut if is true this column will be removed and replaced by columns from cuttingParts array on next frame Draw
 	isCut        bool
 	cuttingParts []*TerrainColumn
+	bodyLocker   *TimeLocker
 }
 
 // NewTerrainColumn creates new TerrainColumn collider for given terrain.
 // Position defined by x and y should be from terrain line.
-// Height is the distance between terrain line and the bottom for this column.
 func NewTerrainColumn(terrain *Terrain, x, y int, canvas *tl.Canvas) *TerrainColumn {
+	body := &Body{
+		Position: gmath.Vector2f{X: float64(x), Y: float64(y + len((*canvas)[0]))},
+		Mass:     5,
+		Locked:   true,
+	}
 	return &TerrainColumn{
-		Entity:  tl.NewEntityFromCanvas(x, y, *canvas),
-		terrain: terrain,
-		canvas:  canvas,
+		Entity:     tl.NewEntityFromCanvas(x, y, *canvas),
+		body:       body,
+		terrain:    terrain,
+		canvas:     canvas,
+		bodyLocker: &TimeLocker{BodyToRelock: body, RemainingSeconds: 0.25},
 	}
 }
 
 // Draw draws this column and process possible cuttings
 func (t *TerrainColumn) Draw(s *tl.Screen) {
+	// update body locker
+	t.bodyLocker.Update(s.TimeDelta())
+
+	// update position of entity based on body position if not locked
+	if !t.body.Locked {
+		t.Entity.SetPosition(int(t.body.Position.X), int(t.body.Position.Y)-len((*t.canvas)[0]))
+	}
+
 	// draw entity
 	t.Entity.Draw(s)
 
 	// process cut
 	if t.isCut {
-		x, _ := t.Position()
+		x := int(t.body.Position.X)
 
 		// find index of this column in all columns with position x
 		idx := 0
@@ -216,9 +244,17 @@ func (t *TerrainColumn) Size() (int, int) {
 }
 
 // CutFromTop will cut h pixel cells from top of this column.
+// It has immediate effect in contrast to Cut.
 func (t *TerrainColumn) CutFromTop(cells int) {
-	_, y := t.Position()
-	t.Cut(y, y+cells-1)
+	// update canvas
+	newCanvas := *t.canvas
+	newCanvas[0] = newCanvas[0][cells:]
+	t.canvas = &newCanvas
+
+	// update entity
+	x, y := t.Position()
+	//t.body.Position.Y += float64(cells)
+	t.Entity = tl.NewEntityFromCanvas(x, y+cells, newCanvas)
 }
 
 // Cut cuts horizontal line given by miny and maxy from this column.
@@ -259,4 +295,14 @@ func (t *TerrainColumn) Cut(miny, maxy int) {
 	if h2 > 0 {
 		t.cuttingParts = append(t.cuttingParts, bottomCol)
 	}
+}
+
+// Body returns physical body for falling processing
+func (t *TerrainColumn) Body() *Body {
+	return t.body
+}
+
+// BottomLine returns single point at column's body position for collision with the ground when falling
+func (t *TerrainColumn) BottomLine() (int, int) {
+	return 0, 0
 }
