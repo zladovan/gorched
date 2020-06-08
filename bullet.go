@@ -72,6 +72,7 @@ func (b *Bullet) Draw(s *tl.Screen) {
 
 	// if bullet hit somewhere it's dead
 	if b.isInCollision {
+		s.Level().AddEntity(NewExplosion(*b.body.Position.As2I(), b.strength))
 		b.die(s)
 	}
 }
@@ -110,11 +111,10 @@ func (b *Bullet) Collide(collision tl.Physical) {
 			b.shooter.Hit()
 		}
 	}
-	if target, ok := collision.(*TerrainColumn); ok {
+	if _, ok := collision.(*TerrainColumn); ok {
 		bx := int(b.body.Position.X)
 		by := int(b.body.Position.Y)
 		Debug.Logf("Ground was hit x=%d y=%d", bx, by)
-		target.terrain.MakeHole(bx, by, b.strength)
 	}
 }
 
