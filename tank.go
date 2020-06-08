@@ -287,7 +287,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 		// create new bullet
 		Debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
 		// TODO: choose strength of bullet based on player stats
-		s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), t.power, t.angle, 3, t.onShootingFinished))
+		s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), t.power, t.angle, 4, t.onShootingFinished))
 		t.state = Waiting
 	case Loading:
 		// increase shooting power

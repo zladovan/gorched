@@ -96,7 +96,8 @@ func (t *Terrain) CutAround(x, y, w int) {
 func (t *Terrain) MakeHole(cx, cy, r int) {
 	Debug.Logf("Hole in the terrain centerx=%d, centery=%d", cx, cy)
 	for ix := -r + 1; ix < r; ix++ {
-		iy := int(math.Sqrt(math.Pow(float64(r-1), 2) - math.Pow(float64(ix), 2)))
+		// y coordinate is scaled by 0.5 to reduce terminal's cells ratio 2:1 for height:width
+		iy := int(math.Sqrt(math.Pow(float64(r-1), 2)-math.Pow(float64(ix), 2)) * 0.5)
 		miny := cy - iy
 		maxy := cy + iy
 		x := cx + ix
