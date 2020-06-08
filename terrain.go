@@ -100,6 +100,9 @@ func (t *Terrain) MakeHole(cx, cy, r int) {
 		miny := cy - iy
 		maxy := cy + iy
 		x := cx + ix
+		if x < 0 || x >= len(t.columns) {
+			continue
+		}
 		for _, c := range t.columns[x] {
 			c.Cut(miny, maxy)
 		}
