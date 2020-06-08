@@ -91,9 +91,11 @@ func (g *Game) NextRound() {
 // RestartRound regenerates again current round to the same state as when it was started.
 func (g *Game) RestartRound() {
 	world := NewWorld(g, WorldOptions{
-		Width:  g.options.Width,
-		Height: g.options.Height,
-		Seed:   g.LastSeed(),
+		Width:     g.options.Width,
+		Height:    g.options.Height,
+		Seed:      g.LastSeed(),
+		ASCIIOnly: g.options.ASCIIOnly,
+		LowColor:  g.options.LowColor,
 	})
 	g.engine.Screen().SetLevel(world)
 }

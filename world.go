@@ -13,6 +13,7 @@ type World struct {
 	*tl.BaseLevel
 	terrain *Terrain
 	physics *Physics
+	options WorldOptions
 	// entitiesToRemove holds references to entities which will be removed on next Tick
 	entitiesToRemove []tl.Drawable
 }
@@ -25,6 +26,10 @@ type WorldOptions struct {
 	Height int
 	// Seed is number used as random seed and if it is reused it allows to create same game looking game world with same positions for players
 	Seed int64
+	// AsciiOnly identifies that only ASCII characters can be used for world graphics
+	ASCIIOnly bool
+	// LowColor identifies that only 8 colors can be used for world graphics
+	LowColor bool
 }
 
 // NewWorld creates new game world with all entities
@@ -97,6 +102,7 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		BaseLevel: tl.NewBaseLevel(tl.Cell{Bg: bg}),
 		terrain:   terrain,
 		physics:   &Physics{Gravity: 9.81, Ground: terrain.HeightInside},
+		options:   o,
 	}
 	world.AddEntity(clouds)
 	for _, c := range terrain.Entities() {
@@ -168,6 +174,14 @@ func (w *World) Tick(e tl.Event) {
 		w.BaseLevel.RemoveEntity(entity)
 	}
 	w.BaseLevel.Tick(e)
+}
+
+// IsLowColor is helper function for quick access to LowColor world option in Draw methods
+func IsLowColor(s *tl.Screen) bool {
+	if world, ok := s.Level().(*World); ok {
+		return world.options.LowColor
+	}
+	panic("Invalid level. World ecxpected")
 }
 
 // ZIndexer if implemented by entity allows to be sorted by z-index.
