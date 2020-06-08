@@ -312,7 +312,6 @@ func createOakTreeCanvas(size int, lowColor bool) tl.Canvas {
 		ColorA:    tl.Attr(41),
 		Step:      -6,
 		StepCount: 3,
-		//Scale:     1.25,
 	}
 
 	// print crown
