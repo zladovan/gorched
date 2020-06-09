@@ -16,6 +16,10 @@ Gorched is terminal based game written in [Go](https://golang.org/) inspired by 
  - procedurally generated world
  - turn based multiplayer
 
+## Try online
+
+You can try Gorched online on [gorched.zladovan.repl.run](http://gorched.zladovan.repl.run/).
+
 ## Installation
 
 ### General
@@ -58,6 +62,8 @@ Gorched currently has only one mode where two players are playing locally agains
 - <kbd>Ctrl</kbd>+<kbd>N</kbd> start next round
 - <kbd>S</kbd> show score
 - <kbd>H</kbd> show help 
+
+> When running from browser use just <kbd>R</kbd> / <kbd>N</kbd> instead of <kbd>Ctrl</kbd>+<kbd>R</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd>
 
 ## Troubleshooting
 
