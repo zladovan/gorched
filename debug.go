@@ -65,10 +65,11 @@ func (d *debug) lastNLogs(n int) []string {
 
 // debugView is entity for showing all debug related info
 type debugView struct {
-	d          *debug
-	fpsCaption *tl.Text
-	fpsText    *tl.FpsText
-	hidden     bool
+	d            *debug
+	fpsCaption   *tl.Text
+	fpsText      *tl.FpsText
+	hidden       bool
+	showPallette bool
 }
 
 // newDebugView creates new entity for showing all debug related info
@@ -85,12 +86,23 @@ func (v *debugView) Draw(s *tl.Screen) {
 	if v.hidden {
 		return
 	}
+
+	// starting x position of debug text lines
+	x := 0
+	if v.showPallette {
+		DrawPallette(s, -1)
+		x += 6
+	}
+
 	// show line with fps
+	v.fpsCaption.SetPosition(x, 0)
 	v.fpsCaption.Draw(s)
+	v.fpsText.SetPosition(x+5, 0)
 	v.fpsText.Draw(s)
+
 	// show last 10 logs with new log always at the bottom
 	for i, l := range v.d.lastNLogs(10) {
-		tl.NewText(0, i+1, l, tl.ColorBlack, tl.ColorDefault).Draw(s)
+		tl.NewText(x, i+1, l, tl.ColorBlack, tl.ColorDefault).Draw(s)
 	}
 }
 
@@ -99,6 +111,10 @@ func (v *debugView) Tick(e tl.Event) {
 	switch e.Key {
 	case tl.KeyCtrlD:
 		v.hidden = !v.hidden
+	}
+	switch e.Ch {
+	case 'p':
+		v.showPallette = !v.showPallette
 	}
 }
 
