@@ -40,8 +40,14 @@ func NewBullet(shooter *Tank, p Position, speed float64, angle int, strength int
 
 // Draw bullet
 func (b *Bullet) Draw(s *tl.Screen) {
+	// color of the bullet
+	color := tl.Attr(221)
+	if IsLowColor(s) {
+		color = tl.ColorYellow
+	}
+
 	// draw bullet symbol
-	s.RenderCell(int(b.body.Position.X), int(b.body.Position.Y), &tl.Cell{Fg: tl.ColorYellow, Ch: '■'})
+	s.RenderCell(int(b.body.Position.X), int(b.body.Position.Y), &tl.Cell{Fg: color, Ch: '■'})
 
 	// check if below the screen
 	sw, sh := s.Size()
@@ -65,7 +71,7 @@ func (b *Bullet) Draw(s *tl.Screen) {
 		// TODO: use label for this info
 		i := 0
 		for _, c := range dstr {
-			s.RenderCell(int(x)+i, int(y), &tl.Cell{Fg: tl.ColorYellow | tl.AttrBold, Ch: c})
+			s.RenderCell(int(x)+i, int(y), &tl.Cell{Fg: color | tl.AttrBold, Ch: c})
 			i++
 		}
 	}
