@@ -105,6 +105,7 @@ func (b *Bullet) die(s *tl.Screen) {
 // Collide check the collisions
 func (b *Bullet) Collide(collision tl.Physical) {
 	b.isInCollision = true
+	b.body.Locked = true
 	if target, ok := collision.(*Tank); ok {
 		target.TakeDamage()
 		if target != b.shooter {
