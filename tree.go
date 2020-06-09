@@ -39,8 +39,8 @@ const (
 )
 
 // NewTree creates new Tree
-func NewTree(position Position, kind TreeKind, size int, lowColor bool) *Tree {
-	canvas := createTreeCanvas(kind, size, lowColor)
+func NewTree(position Position, kind TreeKind, size int, lowColor bool, asciiOnly bool) *Tree {
+	canvas := createTreeCanvas(kind, size, lowColor, asciiOnly)
 	return &Tree{
 		Entity: tl.NewEntityFromCanvas(position.x-len(canvas)/2, position.y-len(canvas[0]), canvas),
 		body: &Body{
@@ -51,12 +51,12 @@ func NewTree(position Position, kind TreeKind, size int, lowColor bool) *Tree {
 }
 
 // Create sprite for tree of given kind
-func createTreeCanvas(kind TreeKind, size int, lowColor bool) tl.Canvas {
+func createTreeCanvas(kind TreeKind, size int, lowColor bool, asciiOnly bool) tl.Canvas {
 	switch kind {
 	case SpruceTree:
-		return createSpruceTreeCanvas(size, lowColor)
+		return createSpruceTreeCanvas(size, lowColor, asciiOnly)
 	case PopulusTree:
-		return createPopulusTreeCanvas(size, lowColor)
+		return createPopulusTreeCanvas(size, lowColor, asciiOnly)
 	case OakTree:
 		return createOakTreeCanvas(size, lowColor)
 	}
@@ -83,7 +83,7 @@ func createTreeCanvas(kind TreeKind, size int, lowColor bool) tl.Canvas {
 // ▓▓▓▓▓▓▓
 //    █
 //
-func createSpruceTreeCanvas(size int, lowColor bool) tl.Canvas {
+func createSpruceTreeCanvas(size int, lowColor bool, asciiOnly bool) tl.Canvas {
 	// calculate dimensions
 	trunkHeight := 1
 	crownHeight := 1 + size
@@ -121,6 +121,12 @@ func createSpruceTreeCanvas(size int, lowColor bool) tl.Canvas {
 		StepCount: 3,
 	}
 
+	// character used for drawing a crown pixel
+	crownCh := "≡"
+	if asciiOnly {
+		crownCh = "="
+	}
+
 	// draw crown
 	for i := 0; i < crownHeight; i++ {
 		// width (w) of crown is increasing linearly with size
@@ -134,7 +140,7 @@ func createSpruceTreeCanvas(size int, lowColor bool) tl.Canvas {
 				p.Fg = gradient.Color(v) | tl.AttrBold
 				p.Bg = tl.Attr(24)
 			}
-			p.Write(v.X, v.Y, "≡")
+			p.Write(v.X, v.Y, crownCh)
 		}
 	}
 
@@ -175,7 +181,7 @@ func createSpruceTreeCanvas(size int, lowColor bool) tl.Canvas {
 //  █
 //  █
 //
-func createPopulusTreeCanvas(size int, lowColor bool) tl.Canvas {
+func createPopulusTreeCanvas(size int, lowColor bool, asciiOnly bool) tl.Canvas {
 	// calculate dimensions
 	trunkHeight := 1 + size/4
 	crownHeight := 2
@@ -183,6 +189,12 @@ func createPopulusTreeCanvas(size int, lowColor bool) tl.Canvas {
 		crownHeight = size
 	}
 	height := trunkHeight + crownHeight
+
+	// character used for drawing trunk pixel
+	trunkCh := "≡"
+	if asciiOnly {
+		trunkCh = "="
+	}
 
 	// create printer with canvas
 	p := draw.BlankPrinter(3, height)
@@ -195,7 +207,7 @@ func createPopulusTreeCanvas(size int, lowColor bool) tl.Canvas {
 			p.Fg = 243
 			p.Bg = 245
 		}
-		p.WriteHorizontalUp(p.CenterX(), p.MaxY(), strings.Repeat("≡", trunkHeight))
+		p.WriteHorizontalUp(p.CenterX(), p.MaxY(), strings.Repeat(trunkCh, trunkHeight))
 	} else {
 		if lowColor {
 			p.Fg = tl.ColorWhite | tl.AttrBold
@@ -391,6 +403,8 @@ type WoodGenerator struct {
 	MinSpace uint
 	// LowColor generates trees in only 8 colors mode when true
 	LowColor bool
+	// ASCIIOnly identifies that only ASCII characters can be used for generated trees
+	ASCIIOnly bool
 }
 
 // constants which are too magic to become generator paramters
@@ -440,7 +454,7 @@ func GenerateWood(g *WoodGenerator) Wood {
 		if size > threshold {
 			size := (size-threshold)/(1-threshold)*float64(g.MaxSize) + 1
 			kind := TreeKind(noise.Eval3(r, r, woodMagicKindVariability*float64(x)) * float64(CountOfTreeKind))
-			tree := NewTree(Position{x, y}, kind, int(size), g.LowColor)
+			tree := NewTree(Position{x, y}, kind, int(size), g.LowColor, g.ASCIIOnly)
 			wood = append(wood, tree)
 			lastX = x
 		}

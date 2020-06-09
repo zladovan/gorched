@@ -51,12 +51,13 @@ func NewWorld(game *Game, o WorldOptions) *World {
 
 	// create trees
 	trees := GenerateWood(&WoodGenerator{
-		Line:     terrain.Line(),
-		Seed:     o.Seed,
-		Density:  0.2,
-		MaxSize:  6,
-		MinSpace: 1,
-		LowColor: game.options.LowColor,
+		Line:      terrain.Line(),
+		Seed:      o.Seed,
+		Density:   0.2,
+		MaxSize:   6,
+		MinSpace:  1,
+		LowColor:  game.options.LowColor,
+		ASCIIOnly: game.options.ASCIIOnly,
 	})
 
 	// create players
