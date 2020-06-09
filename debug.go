@@ -108,13 +108,27 @@ func (v *debugView) Draw(s *tl.Screen) {
 
 // Tick updates debug view on every tick
 func (v *debugView) Tick(e tl.Event) {
+	// toggle debug view
 	switch e.Key {
 	case tl.KeyCtrlD:
 		v.hidden = !v.hidden
 	}
+
+	// toggle pallette
 	switch e.Ch {
 	case 'p':
 		v.showPallette = !v.showPallette
+	}
+
+	// log mouse click position
+	switch e.Type {
+	case tl.EventMouse:
+		if e.Key == tl.MouseLeft {
+			Debug.Logf("Click on cell x=%d y=%d", e.MouseX, e.MouseY)
+			if v.showPallette && e.MouseX < 6 && e.MouseY <= 256/6 {
+				Debug.Logf("Color int=%d", e.MouseX+e.MouseY*6-1)
+			}
+		}
 	}
 }
 
