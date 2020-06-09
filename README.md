@@ -65,6 +65,16 @@ Gorched currently has only one mode where two players are playing locally agains
 
 > When running from browser use just <kbd>R</kbd> / <kbd>N</kbd> instead of <kbd>Ctrl</kbd>+<kbd>R</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd>
 
+## How to run from source code
+
+Alternatively you can run Gorched from source code.
+
+    git clone https://github.com/zladovan/gorched.git
+    cd gorched
+    go run cmd/main.go
+
+>You need to have [git](https://git-scm.com/downloads) and [golang](https://golang.org/dl/) installed locally
+
 ## Troubleshooting
 
 ### When you see the question marks 
