@@ -60,6 +60,15 @@ func (c *Controls) Tick(e tl.Event) {
 	case 's':
 		c.game.Hud().ShowScore()
 	}
+	// for the browser mode we cannot use ctrl+n and ctr+r as we would leave the window
+	if c.game.options.BrowserMode {
+		switch e.Ch {
+		case 'n':
+			c.game.NextRound()
+		case 'r':
+			c.game.RestartRound()
+		}
+	}
 }
 
 // ActivateNextTank moves turn to nearest tank which is alive.

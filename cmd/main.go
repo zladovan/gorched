@@ -51,6 +51,10 @@ func main() {
 				Usage: "Use only 8 colors to draw graphics",
 			},
 			&cli.BoolFlag{
+				Name:  "browser",
+				Usage: "Use this flag when starting from emulated terminal in browser",
+			},
+			&cli.BoolFlag{
 				Name:  "debug",
 				Usage: "Turn on debug mode",
 			},
@@ -100,6 +104,7 @@ func run(c *cli.Context) error {
 		Fps:         c.Int("fps"),
 		ASCIIOnly:   c.Bool("ascii-only"),
 		LowColor:    c.Bool("low-color"),
+		BrowserMode: c.Bool("browser"),
 		Debug:       c.Bool("debug"),
 	})
 

@@ -65,8 +65,14 @@ const infoText = `
 `
 
 // NewInfoBox creates MessageBox with main game info
-func NewInfoBox(lowColor bool) *MessageBox {
-	return NewMessageBox(infoText, lowColor)
+func NewInfoBox(browserMode bool, lowColor bool) *MessageBox {
+	text := infoText
+	// in browser mode some controls are different to do not collide with browser shortcuts
+	if browserMode {
+		text = strings.ReplaceAll(text, "Ctrl+R", "  R   ")
+		text = strings.ReplaceAll(text, "Ctrl+N", "  N   ")
+	}
+	return NewMessageBox(text, lowColor)
 }
 
 // header of scoreboard

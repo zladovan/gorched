@@ -1,6 +1,6 @@
 package gorched
 
-import (	
+import (
 	tl "github.com/JoelOtter/termloop"
 )
 
@@ -34,10 +34,10 @@ func (h *HUD) HideMessageBox() {
 
 // ShowInfo shows message box with main game information
 func (h *HUD) ShowInfo() {
-	h.ShowMessageBox(NewInfoBox(h.game.options.LowColor))
+	h.ShowMessageBox(NewInfoBox(h.game.options.BrowserMode, h.game.options.LowColor))
 }
 
-// ShowScore shows message box with actual score 
+// ShowScore shows message box with actual score
 func (h *HUD) ShowScore() {
 	h.ShowMessageBox(NewScoreBox(h.game))
 }

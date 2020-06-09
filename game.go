@@ -42,6 +42,8 @@ type GameOptions struct {
 	ASCIIOnly bool
 	// LowColor identifies that only 8 colors can be used for all graphics
 	LowColor bool
+	// BrowserMode identifies that game was run in browser and some controls need to be modified to do not collide with usual browser shortcuts
+	BrowserMode bool
 	// Debug turns on debug mode if set to true
 	Debug bool
 }
