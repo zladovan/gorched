@@ -73,4 +73,4 @@ The exact colors used in the game depends on your terminal support and settings.
 
 Gorched is using [termloop](https://github.com/JoelOtter/termloop) as game engine.
 
-Procedural generation is based on OpenSimplex noise implemented in Go by [opensimplex-go](https://github.com/ojrac/opensimplex-go]).
+Procedural generation is based on OpenSimplex noise implemented in Go by [opensimplex-go](https://github.com/ojrac/opensimplex-go).
