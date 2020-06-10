@@ -287,7 +287,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 		// create new bullet
 		Debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
 		// TODO: choose strength of bullet based on player stats
-		s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), t.power, t.angle, 4, t.onShootingFinished))
+		s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, 4, t.onShootingFinished))
 		t.state = Waiting
 	case Loading:
 		// increase shooting power
@@ -350,4 +350,24 @@ func (t *Tank) BottomLine() (int, int) {
 	}
 	// when tank is dead sprite is slimmer
 	return 1, 1
+}
+
+// Angle returns angle of tank's cannon
+func (t *Tank) Angle() int {
+	return t.angle
+}
+
+// Power returns power which will be used to shoot bullet, can be 0 - 100
+func (t *Tank) Power() int {
+	return int(t.power)
+}
+
+// IsIdle returns true if tank is in Idle state
+func (t *Tank) IsIdle() bool {
+	return t.state == Idle
+}
+
+// IsLoading returns true if tank is loading now
+func (t *Tank) IsLoading() bool {
+	return t.state == Loading
 }

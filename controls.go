@@ -27,10 +27,7 @@ func (c *Controls) Tick(e tl.Event) {
 	// when message box is show it's just possible to hide it
 	if c.game.Hud().IsMessageBoxShown() {
 		if e.Type == tl.EventKey {
-			c.game.Hud().HideMessageBox()
-			if c.NumberOfTanksAlive() <= 1 {
-				c.game.NextRound()
-			}
+			c.HideMessageBox()
 		}
 		return
 	}
@@ -42,17 +39,11 @@ func (c *Controls) Tick(e tl.Event) {
 	case tl.KeyArrowRight:
 		c.ActiveTank().MoveDown()
 	case tl.KeySpace:
-		c.ActiveTank().Shoot(func() {
-			if c.NumberOfTanksAlive() <= 1 {
-				c.game.Hud().ShowScore()
-			} else {
-				c.ActivateNextTank()
-			}
-		})
+		c.Shoot()
 	case tl.KeyCtrlR:
-		c.game.RestartRound()
+		c.RestartRound()
 	case tl.KeyCtrlN:
-		c.game.NextRound()
+		c.NextRound()
 	}
 	switch e.Ch {
 	case 'h':
@@ -93,6 +84,52 @@ func (c *Controls) NumberOfTanksAlive() int {
 		}
 	}
 	return alive
+}
+
+// Shoot will start loading or shoot with active tank if it's already loading
+func (c *Controls) Shoot() {
+	c.ActiveTank().Shoot(func() {
+		if c.NumberOfTanksAlive() <= 1 {
+			c.game.Hud().ShowScore()
+		} else {
+			c.ActivateNextTank()
+		}
+	})
+}
+
+// HideMessageBox will hide any active message box
+func (c *Controls) HideMessageBox() {
+	c.game.Hud().HideMessageBox()
+	if c.NumberOfTanksAlive() <= 1 {
+		c.game.NextRound()
+	}
+}
+
+// NextRound will switch game to the next round
+func (c *Controls) NextRound() {
+	c.game.NextRound()
+}
+
+// RestartRound will restart current round
+func (c *Controls) RestartRound() {
+	c.game.RestartRound()
+}
+
+// TODO: Create some component for managing rounds and turns and move IsTurnFinished logic there
+
+// IsTurnFinished returns true if there are no bullets and explosions in world
+func (c *Controls) IsTurnFinished() bool {
+	if world, ok := c.game.engine.Screen().Level().(*World); ok {
+		for _, e := range world.Entities {
+			if _, ok := e.(*Bullet); ok {
+				return false
+			}
+			if _, ok := e.(*Explosion); ok {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // Draw does nothing now

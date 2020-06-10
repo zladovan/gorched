@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"github.com/zladovan/gorched"
+	"github.com/zladovan/gorched/demo"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -58,6 +59,10 @@ func main() {
 				Name:  "debug",
 				Usage: "Turn on debug mode",
 			},
+			&cli.StringFlag{
+				Name:  "demo",
+				Usage: "Play demo script from given `FILE` right after game start",
+			},
 		},
 		HideHelpCommand: true,
 		Action:          run,
@@ -107,6 +112,16 @@ func run(c *cli.Context) error {
 		BrowserMode: c.Bool("browser"),
 		Debug:       c.Bool("debug"),
 	})
+
+	// load demo if requested
+	demoPath := c.String("demo")
+	if demoPath != "" {
+		demo, err := demo.LoadFromFile(demoPath)
+		if err != nil {
+			return fmt.Errorf("Unable to load demo from file '%s': %w", demoPath, err)
+		}
+		game.Engine().Screen().AddEntity(demo)
+	}
 
 	// start game
 	game.Start()

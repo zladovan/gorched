@@ -1,6 +1,8 @@
 package gorched
 
-import tl "github.com/JoelOtter/termloop"
+import (
+	tl "github.com/JoelOtter/termloop"
+)
 
 // Game holds information which is kept during whole session.
 type Game struct {
@@ -120,4 +122,9 @@ func (g *Game) CurrentRound() int {
 // Hud returns games HUD
 func (g *Game) Hud() *HUD {
 	return g.hud
+}
+
+// Engine returns reference to underlying game engine
+func (g *Game) Engine() *tl.Game {
+	return g.engine
 }
