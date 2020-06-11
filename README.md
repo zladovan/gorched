@@ -14,6 +14,7 @@ Gorched is terminal based game written in [Go](https://golang.org/) inspired by 
  - rendered in terminal
  - ASCII graphics (actually few unicode symbols were used on tank)
  - procedurally generated world
+ - terrain destruction
  - turn based multiplayer
 
 ## Try online
