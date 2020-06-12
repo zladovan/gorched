@@ -39,12 +39,12 @@ const (
 )
 
 // NewTree creates new Tree
-func NewTree(position Position, kind TreeKind, size int, lowColor bool, asciiOnly bool) *Tree {
+func NewTree(position gmath.Vector2i, kind TreeKind, size int, lowColor bool, asciiOnly bool) *Tree {
 	canvas := createTreeCanvas(kind, size, lowColor, asciiOnly)
 	return &Tree{
-		Entity: tl.NewEntityFromCanvas(position.x-len(canvas)/2, position.y-len(canvas[0]), canvas),
+		Entity: tl.NewEntityFromCanvas(position.X-len(canvas)/2, position.Y-len(canvas[0]), canvas),
 		body: &Body{
-			Position: gmath.Vector2f{X: float64(position.x), Y: float64(position.y)},
+			Position: *position.As2F(),
 			Mass:     5,
 		},
 	}
@@ -454,7 +454,7 @@ func GenerateWood(g *WoodGenerator) Wood {
 		if size > threshold {
 			size := (size-threshold)/(1-threshold)*float64(g.MaxSize) + 1
 			kind := TreeKind(noise.Eval3(r, r, woodMagicKindVariability*float64(x)) * float64(CountOfTreeKind))
-			tree := NewTree(Position{x, y}, kind, int(size), g.LowColor, g.ASCIIOnly)
+			tree := NewTree(gmath.Vector2i{x, y}, kind, int(size), g.LowColor, g.ASCIIOnly)
 			wood = append(wood, tree)
 			lastX = x
 		}

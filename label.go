@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/gmath"
 )
 
 // TODO: find more descriptive name
@@ -13,7 +14,7 @@ type Label struct {
 	// it extends text entity
 	*tl.Text
 	// position of center of this label
-	position Position
+	position gmath.Vector2i
 	// how many seconds will be label visible
 	ttl float64
 }
@@ -23,7 +24,7 @@ type Label struct {
 func NewLabel(x, y int, color tl.Attr) *Label {
 	return &Label{
 		Text:     tl.NewText(x, y, "", color|tl.AttrBold, tl.ColorDefault),
-		position: Position{x, y},
+		position: gmath.Vector2i{x, y},
 	}
 }
 
@@ -31,7 +32,7 @@ func NewLabel(x, y int, color tl.Attr) *Label {
 func (l *Label) Show(s string) {
 	l.ttl = 1
 	l.Text.SetText(s)
-	l.Text.SetPosition(l.position.x-len(s)/2, l.position.y)
+	l.Text.SetPosition(l.position.X-len(s)/2, l.position.Y)
 }
 
 // ShowNumber sets some number as text.

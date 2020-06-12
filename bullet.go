@@ -24,12 +24,12 @@ type Bullet struct {
 
 // NewBullet creates new bullet.
 // Given onFinish will be  called when bullet finished his path.
-func NewBullet(shooter *Tank, p Position, speed float64, angle int, strength int, onFinish func()) *Bullet {
+func NewBullet(shooter *Tank, p gmath.Vector2i, speed float64, angle int, strength int, onFinish func()) *Bullet {
 	theta := 2.0 * math.Pi * (float64(angle) / 360.0)
 	return &Bullet{
 		shooter: shooter,
 		body: &Body{
-			Position: gmath.Vector2f{X: float64(p.x), Y: float64(p.y)},
+			Position: gmath.Vector2f{X: float64(p.X), Y: float64(p.Y)},
 			Velocity: gmath.Vector2f{X: math.Cos(theta) * speed, Y: math.Sin(theta) * -speed},
 			Mass:     1,
 		},

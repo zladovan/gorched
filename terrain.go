@@ -66,8 +66,8 @@ func (t *Terrain) HeightInside(x, y int) int {
 }
 
 // PositionOn returns position which will be "on the terrain" for given x
-func (t *Terrain) PositionOn(x int) Position {
-	return Position{x, t.HeightOn(x)}
+func (t *Terrain) PositionOn(x int) gmath.Vector2i {
+	return gmath.Vector2i{X: x, Y: t.HeightOn(x)}
 }
 
 // Entities returns all entities (columns) which is terrain made of

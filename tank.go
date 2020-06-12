@@ -51,17 +51,17 @@ const (
 )
 
 // NewTank creates tank for given player.
-func NewTank(player *Player, position Position, angle int, color tl.Attr, asciiOnly bool) *Tank {
+func NewTank(player *Player, position gmath.Vector2i, angle int, color tl.Attr, asciiOnly bool) *Tank {
 	return &Tank{
-		Entity: tl.NewEntityFromCanvas(position.x-2, position.y-3, *createCanvas(angle, color, asciiOnly)),
+		Entity: tl.NewEntityFromCanvas(position.X-2, position.Y-3, *createCanvas(angle, color, asciiOnly)),
 		player: player,
 		body: &Body{
-			Position: gmath.Vector2f{X: float64(position.x), Y: float64(position.y)},
+			Position: *position.As2F(),
 			Mass:     3,
 		},
 		angle:     angle,
 		color:     color,
-		label:     NewLabel(position.x+1, position.y-4, color),
+		label:     NewLabel(position.X+1, position.Y-4, color),
 		asciiOnly: asciiOnly,
 	}
 }
@@ -275,9 +275,9 @@ func (t *Tank) Draw(s *tl.Screen) {
 	// update entity and label positions based on body position
 	y := int(t.body.Position.Y) - 3
 	t.Entity.SetPosition(int(t.body.Position.X)-2, y)
-	t.label.position.y = y - 1
+	t.label.position.Y = y - 1
 	lx, _ := t.label.Text.Position()
-	t.label.Text.SetPosition(lx, t.label.position.y)
+	t.label.Text.SetPosition(lx, t.label.position.Y)
 
 	// draw underlying entity
 	t.Entity.Draw(s)
@@ -304,7 +304,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 }
 
 // calculates initial position of the bullet
-func (t *Tank) getBulletInitPos() Position {
+func (t *Tank) getBulletInitPos() gmath.Vector2i {
 	x, y := t.Entity.Position()
 	x += 2 // move to the center (almost) of the tank
 	if t.angle >= 45 && t.angle <= 135 {
@@ -316,7 +316,7 @@ func (t *Tank) getBulletInitPos() Position {
 	if t.angle > 105 {
 		x -= 3
 	}
-	return Position{x, y}
+	return gmath.Vector2i{X: x, Y: y}
 }
 
 // Position returns collider position
