@@ -454,7 +454,7 @@ func GenerateWood(g *WoodGenerator) Wood {
 		if size > threshold {
 			size := (size-threshold)/(1-threshold)*float64(g.MaxSize) + 1
 			kind := TreeKind(noise.Eval3(r, r, woodMagicKindVariability*float64(x)) * float64(CountOfTreeKind))
-			tree := NewTree(gmath.Vector2i{x, y}, kind, int(size), g.LowColor, g.ASCIIOnly)
+			tree := NewTree(gmath.Vector2i{X: x, Y: y}, kind, int(size), g.LowColor, g.ASCIIOnly)
 			wood = append(wood, tree)
 			lastX = x
 		}

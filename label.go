@@ -24,7 +24,7 @@ type Label struct {
 func NewLabel(x, y int, color tl.Attr) *Label {
 	return &Label{
 		Text:     tl.NewText(x, y, "", color|tl.AttrBold, tl.ColorDefault),
-		position: gmath.Vector2i{x, y},
+		position: gmath.Vector2i{X: x, Y: y},
 	}
 }
 
