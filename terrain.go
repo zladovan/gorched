@@ -280,8 +280,8 @@ func (t *TerrainColumn) Cut(miny, maxy int) {
 	t.cuttingParts = []*TerrainColumn{}
 
 	// local y coordinates of cut hole
-	topy := int(math.Max(0, float64(miny-y)))
-	bottomy := int(math.Min(float64(h-1), float64(maxy-y)))
+	topy := gmath.Max(0, miny-y)
+	bottomy := gmath.Min(h-1, maxy-y)
 
 	// create two new columns around cut hole
 	canvas := *t.canvas

@@ -58,9 +58,19 @@ func (v *Vector2f) RotateAround(u *Vector2f, rad float64) *Vector2f {
 	return &Vector2f{X: x, Y: y}
 }
 
+// Length return length of this vector
+func (v *Vector2f) Length() float64 {
+	return math.Sqrt(math.Pow(v.X, 2) + math.Pow(v.Y, 2))
+}
+
 // Distance returns distance of this vector v to given vector u
 func (v *Vector2f) Distance(u *Vector2f) float64 {
 	return math.Sqrt(math.Pow(v.X-u.X, 2) + math.Pow(v.Y-u.Y, 2))
+}
+
+// Translate returns new vector which is moved by given x and y from this vector.
+func (v *Vector2f) Translate(x, y float64) *Vector2f {
+	return &Vector2f{X: v.X + x, Y: v.Y + y}
 }
 
 // As2I Converts this vector to Vector2i with int coordinates
