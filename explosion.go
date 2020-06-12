@@ -94,15 +94,17 @@ func (e *Explosion) Draw(s *tl.Screen) {
 			// if it's in the center it should be no chance to use other cell then initial
 			// more far from center more change to use less visible cells (or cells with red background near center)
 			n := e.noise.Eval2(v.X*0.2, v.Y*0.2) * v.Distance(e.Center.As2F()) / maxd * 2
-			minn := 0.3 // higher = bigger and stronger center
+			minn := 0.4 // higher = bigger and stronger center
 			switch {
-			case n > minn+(1-minn)*0.75:
+			case n > minn+(1-minn)*0.875:
 				cell.Ch = ' '
-			case n > minn+(1-minn)*0.5:
+			case n > minn+(1-minn)*0.75:
 				cell.Ch = '░'
-			case n > minn+(1-minn)*0.25:
+			case n > minn+(1-minn)*0.625:
 				cell.Ch = '▒'
 				cell.Bg = red
+			case n > minn+(1-minn)*0.5:
+				cell.Fg = red
 			case n > minn:
 				cell.Ch = '▓'
 				cell.Bg = red
