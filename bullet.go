@@ -63,8 +63,10 @@ func (b *Bullet) Draw(s *tl.Screen) {
 		d := b.body.Position.Translate(-x, -y).Length()
 		dstr := fmt.Sprintf("%d", int(d))
 
-		if x >= float64(sw) {
-			x -= float64(len(dstr))
+		// adjust x position to do not draw number out of screen
+		maxx := x + float64(len(dstr))
+		if maxx >= float64(sw) {
+			x -= maxx - float64(sw)
 		}
 
 		// draw number with how far is bullet out of screen
