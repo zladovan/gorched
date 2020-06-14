@@ -6,8 +6,10 @@ import (
 
 	tl "github.com/JoelOtter/termloop"
 	osx "github.com/ojrac/opensimplex-go"
+	"github.com/zladovan/gorched/debug"
 	"github.com/zladovan/gorched/draw"
 	"github.com/zladovan/gorched/gmath"
+	"github.com/zladovan/gorched/terrain"
 )
 
 // Explosion represent effect of explosion.
@@ -42,9 +44,6 @@ func NewExplosion(center gmath.Vector2i, strength int) *Explosion {
 
 // Draw is drawing explosion sprite.
 func (e *Explosion) Draw(s *tl.Screen) {
-	if e.t == 0 {
-		Debug.Logf("Explosion started")
-	}
 	// increase time of explosion
 	e.t += s.TimeDelta()
 
@@ -52,7 +51,6 @@ func (e *Explosion) Draw(s *tl.Screen) {
 	e.radius = math.Sin(e.speed*math.Pi*e.t) * (e.Strength + 1)
 	if e.t > 1/e.speed {
 		s.Level().RemoveEntity(e)
-		Debug.Logf("Explosion finished")
 		return
 	}
 
@@ -136,10 +134,10 @@ func (e *Explosion) Collide(collision tl.Physical) {
 
 	// process collision with terrain only once
 	if !e.terrainCollided {
-		if target, ok := collision.(*TerrainColumn); ok {
-			Debug.Logf("Explosion collides with terrain")
+		if target, ok := collision.(*terrain.Column); ok {
+			debug.Logf("Explosion collides with terrain")
 			e.terrainCollided = true
-			target.terrain.MakeHole(e.Center.X, e.Center.Y, int(e.Strength))
+			target.MakeHole(e.Center.X, e.Center.Y, int(e.Strength))
 		}
 	}
 }

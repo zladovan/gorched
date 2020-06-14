@@ -9,6 +9,7 @@ import (
 
 	"github.com/zladovan/gorched/draw"
 	"github.com/zladovan/gorched/gmath"
+	"github.com/zladovan/gorched/physics"
 )
 
 // Tree represents tree in the scenery.
@@ -18,7 +19,7 @@ type Tree struct {
 	// it extends from termloop.Entity
 	*tl.Entity
 	// body is physical body of the tree used for falling simulation
-	body *Body
+	body *physics.Body
 }
 
 // TreeKind represents the type of tree.
@@ -43,7 +44,7 @@ func NewTree(position gmath.Vector2i, kind TreeKind, size int, lowColor bool, as
 	canvas := createTreeCanvas(kind, size, lowColor, asciiOnly)
 	return &Tree{
 		Entity: tl.NewEntityFromCanvas(position.X-len(canvas)/2, position.Y-len(canvas[0]), canvas),
-		body: &Body{
+		body: &physics.Body{
 			Position: *position.As2F(),
 			Mass:     5,
 		},
@@ -371,7 +372,7 @@ func (t *Tree) ZIndex() int {
 }
 
 // Body returns physical body of the tank used for falling simulation
-func (t *Tree) Body() *Body {
+func (t *Tree) Body() *physics.Body {
 	return t.body
 }
 

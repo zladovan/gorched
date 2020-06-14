@@ -5,14 +5,17 @@ import (
 	"sort"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/debug"
+	"github.com/zladovan/gorched/physics"
+	"github.com/zladovan/gorched/terrain"
 )
 
 // World represents game world with all entities.
 // It extends from termloop.BaseLevel so it can be added to the screen as termloop.Level.
 type World struct {
 	*tl.BaseLevel
-	terrain *Terrain
-	physics *Physics
+	terrain *terrain.Terrain
+	physics *physics.Physics
 	options WorldOptions
 	// entitiesToRemove holds references to entities which will be removed on next Tick
 	entitiesToRemove []tl.Drawable
@@ -38,7 +41,7 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	rnd := rand.New(rand.NewSource(o.Seed))
 
 	// create terrain
-	terrain := GenerateTerrain(&TerrainGenerator{
+	terrain := terrain.Generate(&terrain.Generator{
 		Seed:      o.Seed,
 		Width:     o.Width,
 		Height:    o.Height,
@@ -102,7 +105,7 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	world := &World{
 		BaseLevel: tl.NewBaseLevel(tl.Cell{Bg: bg}),
 		terrain:   terrain,
-		physics:   &Physics{Gravity: 9.81, Ground: terrain.HeightInside},
+		physics:   &physics.Physics{Gravity: 9.81, Ground: terrain.HeightInside},
 		options:   o,
 	}
 	world.AddEntity(clouds)
@@ -117,7 +120,7 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	}
 	world.AddEntity(controls)
 
-	Debug.Logf("New world created width=%d height=%d seed=%d", o.Width, o.Height, o.Seed)
+	debug.Logf("New world created width=%d height=%d seed=%d", o.Width, o.Height, o.Seed)
 
 	return world
 }
@@ -139,7 +142,7 @@ func (w *World) Draw(s *tl.Screen) {
 	for _, e := range w.BaseLevel.Entities {
 
 		// apply physics to all entities with bodies
-		if entity, ok := e.(HasBody); ok {
+		if entity, ok := e.(physics.HasBody); ok {
 			w.physics.Apply(entity, s.TimeDelta())
 		}
 

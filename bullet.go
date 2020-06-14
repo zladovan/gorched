@@ -5,7 +5,10 @@ import (
 	"math"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/debug"
 	"github.com/zladovan/gorched/gmath"
+	"github.com/zladovan/gorched/physics"
+	"github.com/zladovan/gorched/terrain"
 )
 
 // Bullet is entity representing bullet shooted from tank.
@@ -13,7 +16,7 @@ type Bullet struct {
 	// tank who shooted this bullet
 	shooter *Tank
 	// body is physical body
-	body *Body
+	body *physics.Body
 	// strength of the explosion
 	strength int
 	// true if bullet hit to something
@@ -28,7 +31,7 @@ func NewBullet(shooter *Tank, p gmath.Vector2i, speed float64, angle int, streng
 	theta := 2.0 * math.Pi * (float64(angle) / 360.0)
 	return &Bullet{
 		shooter: shooter,
-		body: &Body{
+		body: &physics.Body{
 			Position: gmath.Vector2f{X: float64(p.X), Y: float64(p.Y)},
 			Velocity: gmath.Vector2f{X: math.Cos(theta) * speed, Y: math.Sin(theta) * -speed},
 			Mass:     1,
@@ -120,14 +123,14 @@ func (b *Bullet) Collide(collision tl.Physical) {
 			b.shooter.Hit()
 		}
 	}
-	if _, ok := collision.(*TerrainColumn); ok {
+	if _, ok := collision.(*terrain.Column); ok {
 		bx := int(b.body.Position.X)
 		by := int(b.body.Position.Y)
-		Debug.Logf("Ground was hit x=%d y=%d", bx, by)
+		debug.Logf("Ground was hit x=%d y=%d", bx, by)
 	}
 }
 
 // Body returns physical body of this bullet
-func (b *Bullet) Body() *Body {
+func (b *Bullet) Body() *physics.Body {
 	return b.body
 }

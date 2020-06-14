@@ -4,8 +4,10 @@ import (
 	"math/rand"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/debug"
 	"github.com/zladovan/gorched/draw"
 	"github.com/zladovan/gorched/gmath"
+	"github.com/zladovan/gorched/physics"
 )
 
 // Tank represents player's entity.
@@ -17,7 +19,7 @@ type Tank struct {
 	// player is reference to Player controlling this Tank
 	player *Player
 	// body is physical body of the tank used for falling simulation
-	body *Body
+	body *physics.Body
 	// angle of cannon, 0 points to the right, 180 to the left
 	angle int
 	// power which will be used to shoot bullet, can be 0 - 100
@@ -55,7 +57,7 @@ func NewTank(player *Player, position gmath.Vector2i, angle int, color tl.Attr, 
 	return &Tank{
 		Entity: tl.NewEntityFromCanvas(position.X-2, position.Y-3, *createCanvas(angle, color, asciiOnly)),
 		player: player,
-		body: &Body{
+		body: &physics.Body{
 			Position: *position.As2F(),
 			Mass:     3,
 		},
@@ -272,7 +274,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 	case Shooting:
 		if t.previousState != Shooting {
 			// create new bullet
-			Debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
+			debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
 			// TODO: choose strength of bullet based on player stats
 			s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, 4, t.onShootingFinished))
 		}
@@ -337,7 +339,7 @@ func (t *Tank) ZIndex() int {
 }
 
 // Body returns physical body of the tank used for falling simulation
-func (t *Tank) Body() *Body {
+func (t *Tank) Body() *physics.Body {
 	return t.body
 }
 
@@ -368,7 +370,7 @@ func (t *Tank) IsLoading() bool {
 
 // Tomb is entity representing tomb stone shown on position where tank was killed
 type Tomb struct {
-	body   *Body
+	body   *physics.Body
 	canvas *tl.Canvas
 }
 
@@ -376,7 +378,7 @@ type Tomb struct {
 // It should have same color as tank instead of which it was added to world.
 func NewTomb(position gmath.Vector2i, color tl.Attr) *Tomb {
 	return &Tomb{
-		body: &Body{
+		body: &physics.Body{
 			Position: *position.As2F(),
 			Mass:     3,
 		},
@@ -415,7 +417,7 @@ func (t *Tomb) ZIndex() int {
 }
 
 // Body returns physical body of the tomb used for falling simulation
-func (t *Tomb) Body() *Body {
+func (t *Tomb) Body() *physics.Body {
 	return t.body
 }
 

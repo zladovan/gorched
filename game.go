@@ -2,6 +2,7 @@ package gorched
 
 import (
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/debug"
 )
 
 // Game holds information which is kept during whole session.
@@ -62,7 +63,7 @@ func NewGame(o GameOptions) *Game {
 
 	// init debug
 	if o.Debug {
-		Debug.Attach(game.engine)
+		debug.Attach(game.engine)
 	}
 
 	// init players
