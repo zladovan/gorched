@@ -31,7 +31,7 @@ func (v *debugView) Draw(s *tl.Screen) {
 	// starting x position of debug text lines
 	x := 0
 	if v.showPallette {
-		DrawPallette(s, -1)
+		drawPallette(s, -1)
 		x += 6
 	}
 
@@ -73,10 +73,10 @@ func (v *debugView) Tick(e tl.Event) {
 	}
 }
 
-// DrawPallette draws all available colors as column with 6 colors per line.
+// drawPallette draws all available colors as column with 6 colors per line.
 // Given shift will change starting color and will result in printing less than 256 colors.
 // Debug only !
-func DrawPallette(s *tl.Screen, shift int) {
+func drawPallette(s *tl.Screen, shift int) {
 	for c := 0; c < 256-shift; c++ {
 		x := c % 6
 		y := c / 6
