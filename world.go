@@ -58,17 +58,6 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		ASCIIOnly: game.options.ASCIIOnly,
 	})
 
-	// create trees
-	trees := GenerateWood(&WoodGenerator{
-		Line:      terrain.Line(),
-		Seed:      o.Seed,
-		Density:   0.2,
-		MaxSize:   6,
-		MinSpace:  1,
-		LowColor:  game.options.LowColor,
-		ASCIIOnly: game.options.ASCIIOnly,
-	})
-
 	// create players
 	// TODO: update for different player counts
 	tanks := []*Tank{
@@ -88,12 +77,29 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		),
 	}
 
-	// cut the trees and terrain around the tanks
+	// cut the terrain around the tanks
+	for _, tank := range tanks {
+		x, y := tank.Position()
+		w, h := tank.Size()
+		terrain.CutAround(x, y+h, w)
+	}
+
+	// create trees
+	trees := GenerateWood(&WoodGenerator{
+		Line:      terrain.Line(),
+		Seed:      o.Seed,
+		Density:   0.2,
+		MaxSize:   6,
+		MinSpace:  1,
+		LowColor:  game.options.LowColor,
+		ASCIIOnly: game.options.ASCIIOnly,
+	})
+
+	// cut the trees around the tanks
 	for _, tank := range tanks {
 		x, y := tank.Position()
 		w, h := tank.Size()
 		trees = trees.CutAround(x, y, w, h)
-		terrain.CutAround(x, y+h, w)
 	}
 
 	// create controls
@@ -191,7 +197,7 @@ func IsLowColor(s *tl.Screen) bool {
 	if world, ok := s.Level().(*World); ok {
 		return world.options.LowColor
 	}
-	panic("Invalid level. World ecxpected")
+	panic("Invalid level. World expected")
 }
 
 // ZIndexer if implemented by entity allows to be sorted by z-index.
