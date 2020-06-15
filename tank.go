@@ -307,14 +307,14 @@ func (t *Tank) Draw(s *tl.Screen) {
 func (t *Tank) getBulletInitPos() gmath.Vector2i {
 	x, y := t.Entity.Position()
 	x += 2 // move to the center (almost) of the tank
-	if t.angle >= 45 && t.angle <= 135 {
+	if t.angle >= 75 && t.angle < 105 {
 		y--
 	}
 	if t.angle < 75 {
 		x += 3
 	}
-	if t.angle > 105 {
-		x -= 3
+	if t.angle >= 105 {
+		x -= 2
 	}
 	return gmath.Vector2i{X: x, Y: y}
 }
