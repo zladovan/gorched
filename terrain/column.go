@@ -28,7 +28,7 @@ func NewColumn(terrain *Terrain, x, y int, canvas *tl.Canvas) *Column {
 		body:       body,
 		terrain:    terrain,
 		canvas:     canvas,
-		bodyLocker: &physics.TimeLocker{BodyToRelock: body, RemainingSeconds: 0.25},
+		bodyLocker: &physics.TimeLocker{BodyToRelock: body, RemainingSeconds: 0.5},
 	}
 }
 

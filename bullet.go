@@ -118,7 +118,7 @@ func (b *Bullet) Collide(collision tl.Physical) {
 	b.isInCollision = true
 	b.body.Locked = true
 	if target, ok := collision.(*Tank); ok {
-		target.TakeDamage()
+		target.TakeDamage(100 + b.strength*10)
 		if target != b.shooter {
 			b.shooter.Hit()
 		}

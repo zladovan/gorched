@@ -20,6 +20,8 @@ type Tank struct {
 	player *Player
 	// body is physical body of the tank used for falling simulation
 	body *physics.Body
+	// health holds hit points number between 0 and 100, when 0 is already dead
+	health int
 	// angle of cannon, 0 points to the right, 180 to the left
 	angle int
 	// power which will be used to shoot bullet, can be 0 - 100
@@ -61,6 +63,7 @@ func NewTank(player *Player, position gmath.Vector2i, angle int, color tl.Attr, 
 			Position: *position.As2F(),
 			Mass:     3,
 		},
+		health:    100,
 		angle:     angle,
 		color:     color,
 		label:     NewLabel(position.X+1, position.Y-4, color),
@@ -246,10 +249,15 @@ func (t *Tank) Hit() {
 	t.player.hits++
 }
 
-// TakeDamage should be called when this tank was hit by some enemy
-func (t *Tank) TakeDamage() {
-	t.state = Dead
-	t.player.takes++
+// TakeDamage will reduce this tank's health by given amount.
+// If health goes on or below zero tank will go to Dead state.
+func (t *Tank) TakeDamage(amount int) {
+	t.health -= amount
+	if t.health < 0 {
+		t.health = 0
+		t.state = Dead
+		t.player.takes++
+	}
 }
 
 // IsAlive returns wether this tank is still in game

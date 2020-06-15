@@ -29,6 +29,8 @@ type Explosion struct {
 	noise osx.Noise
 	// terrainCollided is flag for marking that collision with terrain was already applied
 	terrainCollided bool
+	// collided contains flag for each entity which explosion already collided with
+	collided map[tl.Physical]bool
 }
 
 // NewExplosion creates new explosion in the given center point.
@@ -39,6 +41,7 @@ func NewExplosion(center gmath.Vector2i, strength int) *Explosion {
 		Strength: float64(strength),
 		speed:    1,
 		noise:    osx.NewNormalized(time.Now().UTC().UnixNano()),
+		collided: map[tl.Physical]bool{},
 	}
 }
 
@@ -117,12 +120,12 @@ func (e *Explosion) Draw(s *tl.Screen) {
 
 // Position returns postion of collider
 func (e *Explosion) Position() (int, int) {
-	return e.Center.X, e.Center.Y
+	return e.Center.X - int(e.radius) + 1, e.Center.Y - int(e.radius/2) + 1
 }
 
 // Size returns size of collider
 func (e *Explosion) Size() (int, int) {
-	return int(e.radius), int(e.radius)
+	return int(e.radius)*2 - 1, int(e.radius) - 1
 }
 
 // Collide hadnles collisions with other objects
@@ -139,6 +142,25 @@ func (e *Explosion) Collide(collision tl.Physical) {
 			e.terrainCollided = true
 			target.MakeHole(e.Center.X, e.Center.Y, int(e.Strength))
 		}
+	}
+
+	// process collisions with each tank only once
+	if !e.collided[collision] {
+		if target, ok := collision.(*Tank); ok {
+			// get middle point of tank
+			tx, ty := target.Position()
+			tw, th := target.Size()
+			tp := &gmath.Vector2f{X: float64(tx) + float64(tw-1)/2, Y: float64(ty) + float64(th-1)/2}
+
+			// calculate distance of explosion center from tank's middle point
+			d := e.Center.As2F().Distance(tp.Translate(0, -(float64(e.Center.Y)-tp.Y)/2))
+
+			// damage to be taken is affected by distance of explosion and by the strength of explosion
+			damage := int(math.Max(0, (e.Strength-d)/e.Strength) * (100 + e.Strength*10))
+			target.TakeDamage(damage)
+			debug.Logf("Explosion collides with tank damage=%d", damage)
+		}
+		e.collided[collision] = true
 	}
 }
 
