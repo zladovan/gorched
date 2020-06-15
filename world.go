@@ -50,7 +50,13 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	})
 
 	// create clouds
-	clouds := GenerateClouds(&CloudsGenerator{seed: o.Seed, width: o.Width, height: o.Height})
+	clouds := GenerateClouds(&CloudsGenerator{
+		Seed:      o.Seed,
+		Width:     o.Width,
+		Height:    o.Height,
+		LowColor:  game.options.LowColor,
+		ASCIIOnly: game.options.ASCIIOnly,
+	})
 
 	// create trees
 	trees := GenerateWood(&WoodGenerator{
