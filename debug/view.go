@@ -80,6 +80,6 @@ func drawPallette(s *tl.Screen, shift int) {
 	for c := 0; c < 256-shift; c++ {
 		x := c % 6
 		y := c / 6
-		s.RenderCell(x, y, &tl.Cell{Fg: tl.Attr(c + shift), Ch: '█'})
+		s.RenderCell(x, y, &tl.Cell{Bg: tl.Attr(c + shift), Ch: ' '})
 	}
 }
