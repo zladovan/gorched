@@ -17,13 +17,14 @@ type Command interface {
 
 // GameContext holds access to the game controls and state.
 type GameContext struct {
-	// Controls refers to the game controls which can be used to do some action (and get the game state for now)
+	// Controls refers to the game controls which can be used to do some action
 	Controls *gorched.Controls
+	// Round refers to current game round which can be used to getting the state information
+	Round *gorched.Round
 	// Dt is delta time between two executions (game screen redraws)
 	Dt float64
 	// Memory is local memory which "lives" during execution of single command
 	Memory *Memory
-	// TODO: there should be another field for access to actual game / round state, currently accessed via controls
 }
 
 // Memory is simple memory which can be used by commands to store some values under string identifiers

@@ -32,8 +32,6 @@ type Tank struct {
 	state TankState
 	// previousState holds state in previous frame, it's useful for actions on state transitions
 	previousState TankState
-	// callback called when shooted bullet finishes his path
-	onShootingFinished func()
 	// label is used to display info about angle, power or to show some message
 	label *Label
 	// asciiOnly if true will change sprite of the tank to the one containing no unicode characters
@@ -216,20 +214,13 @@ func (t *Tank) updateAngle(change int) {
 }
 
 // Shoot will start loading when called first time and shoot bullet when started second time.
-// Given onFinish callback is called  when shooted bullet finishes his path and hit to some obstacle or disapears out of world.
-func (t *Tank) Shoot(onFinish func()) {
+func (t *Tank) Shoot() {
 	switch t.state {
 	case Idle:
 		t.state = Loading
 		t.power = 0
 	case Loading:
 		t.state = Shooting
-		t.onShootingFinished = func() {
-			if t.state != Dead {
-				t.state = Idle
-			}
-			onFinish()
-		}
 	}
 }
 
@@ -243,20 +234,27 @@ var phrasesAfterHit = []string{
 	"Rest in pieces !",
 }
 
-// Hit should be called when this tank hit some enemy
+// Hit should be called when this tank kill some enemy
 func (t *Tank) Hit() {
 	t.label.Show(phrasesAfterHit[rand.Intn(len(phrasesAfterHit))])
 	t.player.hits++
 }
 
 // TakeDamage will reduce this tank's health by given amount.
+// Optionally (use nil to ignore) you can specify enemy which caused this damage.
 // If health goes on or below zero tank will go to Dead state.
-func (t *Tank) TakeDamage(amount int) {
+func (t *Tank) TakeDamage(amount int, enemy *Tank) {
 	t.health -= amount
-	if t.health < 0 {
-		t.health = 0
-		t.state = Dead
-		t.player.takes++
+	if t.health > 0 {
+		return
+	}
+
+	// deadly take
+	t.health = 0
+	t.state = Dead
+	t.player.takes++
+	if enemy != t && enemy != nil {
+		enemy.Hit()
 	}
 }
 
@@ -278,13 +276,22 @@ func (t *Tank) Draw(s *tl.Screen) {
 	lx, _ := t.label.Text.Position()
 	t.label.Text.SetPosition(lx, t.label.position.Y)
 
+	// get the world
+	world := s.Level().(ExtendedLevel)
+
 	switch t.state {
 	case Shooting:
 		if t.previousState != Shooting {
 			// create new bullet
 			debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
 			// TODO: choose strength of bullet based on player stats
-			s.Level().AddEntity(NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, 4, t.onShootingFinished))
+			bullet := NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, 4)
+			world.AddEntity(bullet)
+			world.OnEntityRemove(bullet, func() {
+				if t.state != Dead {
+					t.state = Idle
+				}
+			})
 		}
 	case Loading:
 		// increase shooting power
@@ -296,11 +303,12 @@ func (t *Tank) Draw(s *tl.Screen) {
 		t.label.ShowNumber(int(t.power))
 	case Dead:
 		if t.previousState != Dead {
-			explosion := NewExplosion(*t.body.Position.Translate(0, -2).As2I(), 6)
-			tomb := NewTomb(*t.body.Position.As2I(), t.color)
-			s.Level().AddEntity(explosion)
-			s.Level().AddEntity(&SpawnAfter{Entity: tomb, After: explosion})
-			s.Level().RemoveEntity(t)
+			explosion := NewExplosion(*t.body.Position.Translate(0, -2).As2I(), 6, nil)
+			world.AddEntity(explosion)
+			world.OnEntityRemove(explosion, func() {
+				world.AddEntity(NewTomb(*t.body.Position.As2I(), t.color))
+			})
+			world.RemoveEntity(t)
 		}
 	}
 	t.previousState = t.state
@@ -374,6 +382,11 @@ func (t *Tank) IsIdle() bool {
 // IsLoading returns true if tank is loading now
 func (t *Tank) IsLoading() bool {
 	return t.state == Loading
+}
+
+// IsShooting returns true if tank is shooting now
+func (t *Tank) IsShooting() bool {
+	return t.state == Shooting
 }
 
 // Tomb is entity representing tomb stone shown on position where tank was killed

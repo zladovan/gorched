@@ -21,13 +21,10 @@ type Bullet struct {
 	strength int
 	// true if bullet hit to something
 	isInCollision bool
-	// will be called when bullet finished his path
-	onFinish func()
 }
 
 // NewBullet creates new bullet.
-// Given onFinish will be  called when bullet finished his path.
-func NewBullet(shooter *Tank, p gmath.Vector2i, speed float64, angle int, strength int, onFinish func()) *Bullet {
+func NewBullet(shooter *Tank, p gmath.Vector2i, speed float64, angle int, strength int) *Bullet {
 	theta := 2.0 * math.Pi * (float64(angle) / 360.0)
 	return &Bullet{
 		shooter: shooter,
@@ -37,7 +34,6 @@ func NewBullet(shooter *Tank, p gmath.Vector2i, speed float64, angle int, streng
 			Mass:     1,
 		},
 		strength: strength,
-		onFinish: onFinish,
 	}
 }
 
@@ -83,7 +79,7 @@ func (b *Bullet) Draw(s *tl.Screen) {
 
 	// if bullet hit somewhere it's dead
 	if b.isInCollision {
-		s.Level().AddEntity(NewExplosion(*b.body.Position.As2I(), b.strength))
+		s.Level().AddEntity(NewExplosion(*b.body.Position.As2I(), b.strength, b.shooter))
 		b.die(s)
 	}
 }
@@ -110,7 +106,6 @@ func (b *Bullet) ZIndex() int {
 // bullet finished his path
 func (b *Bullet) die(s *tl.Screen) {
 	s.Level().RemoveEntity(b)
-	b.onFinish()
 }
 
 // Collide check the collisions
@@ -118,10 +113,7 @@ func (b *Bullet) Collide(collision tl.Physical) {
 	b.isInCollision = true
 	b.body.Locked = true
 	if target, ok := collision.(*Tank); ok {
-		target.TakeDamage(100 + b.strength*10)
-		if target != b.shooter {
-			b.shooter.Hit()
-		}
+		target.TakeDamage(100+b.strength*10, b.shooter)
 	}
 	if _, ok := collision.(*terrain.Column); ok {
 		bx := int(b.body.Position.X)

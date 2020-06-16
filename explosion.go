@@ -31,17 +31,21 @@ type Explosion struct {
 	terrainCollided bool
 	// collided contains flag for each entity which explosion already collided with
 	collided map[tl.Physical]bool
+	// shooter is tank who caused this explosion and will be rewarded if this explosion will take some damage, can be nil
+	shooter *Tank
 }
 
 // NewExplosion creates new explosion in the given center point.
 // Given strength defines maximum radius which explosion reaches at it's peak.
-func NewExplosion(center gmath.Vector2i, strength int) *Explosion {
+// Optionally you can specify shooter to tank who caused this explosion and will be rewarded if this explosion will take some damage.
+func NewExplosion(center gmath.Vector2i, strength int, shooter *Tank) *Explosion {
 	return &Explosion{
 		Center:   center,
 		Strength: float64(strength),
 		speed:    1,
 		noise:    osx.NewNormalized(time.Now().UTC().UnixNano()),
 		collided: map[tl.Physical]bool{},
+		shooter:  shooter,
 	}
 }
 
@@ -157,7 +161,7 @@ func (e *Explosion) Collide(collision tl.Physical) {
 
 			// damage to be taken is affected by distance of explosion and by the strength of explosion
 			damage := int(math.Max(0, (e.Strength-d)/e.Strength) * (100 + e.Strength*10))
-			target.TakeDamage(damage)
+			target.TakeDamage(damage, e.shooter)
 			debug.Logf("Explosion collides with tank damage=%d", damage)
 		}
 		e.collided[collision] = true

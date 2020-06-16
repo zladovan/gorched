@@ -13,12 +13,12 @@ type Game struct {
 	engine *tl.Game
 	// options holds game options used to create new game
 	options GameOptions
-	// rounds holds number of finished rounds
-	rounds int
-	// startingPlayerIndex holds index of player which was first on turn in current round
-	startingPlayerIndex int
 	// hud holds games HUD
 	hud *HUD
+	// controls contains processing of input
+	controls *Controls
+	// round is responsible for creating and managing state of game rounds
+	round *Round
 }
 
 // Player holds stats for player which are aggregated during whole session.
@@ -77,32 +77,20 @@ func NewGame(o GameOptions) *Game {
 	game.hud.ShowInfo()
 	game.engine.Screen().AddEntity(game.hud)
 
+	// init round
+	game.round = NewRound(game)
+	game.engine.Screen().AddEntity(game.round)
+
+	// init controls
+	game.controls = &Controls{game: game}
+	game.engine.Screen().AddEntity(game.controls)
+
 	return game
 }
 
 // Start starts the game which means that game engine is started and first round is set up.
 func (g *Game) Start() {
-	g.RestartRound()
 	g.engine.Start()
-}
-
-// NextRound finish current round as it is and switches to new round.
-func (g *Game) NextRound() {
-	g.rounds++
-	g.startingPlayerIndex = (g.startingPlayerIndex + 1) % len(g.players)
-	g.RestartRound()
-}
-
-// RestartRound regenerates again current round to the same state as when it was started.
-func (g *Game) RestartRound() {
-	world := NewWorld(g, WorldOptions{
-		Width:     g.options.Width,
-		Height:    g.options.Height,
-		Seed:      g.LastSeed(),
-		ASCIIOnly: g.options.ASCIIOnly,
-		LowColor:  g.options.LowColor,
-	})
-	g.engine.Screen().SetLevel(world)
 }
 
 // InitialSeed returns seed used for the first level.
@@ -112,12 +100,7 @@ func (g *Game) InitialSeed() int64 {
 
 // LastSeed returns seed used for the last (current active) level.
 func (g *Game) LastSeed() int64 {
-	return g.options.Seed + int64(g.rounds)
-}
-
-// CurrentRound returns number of actual round starting with 1 for the first row.
-func (g *Game) CurrentRound() int {
-	return g.rounds + 1
+	return g.options.Seed + int64(g.round.Number())
 }
 
 // Hud returns games HUD

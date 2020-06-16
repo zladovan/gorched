@@ -61,6 +61,7 @@ func (d *Demo) Draw(s *tl.Screen) {
 	command := d.script[d.currentCommandIndex]
 	ctx := &GameContext{
 		Controls: findControls(s),
+		Round:    findRound(s),
 		Dt:       s.TimeDelta(),
 		Memory:   d.memory,
 	}
@@ -78,14 +79,22 @@ func (d *Demo) Restart() {
 	d.currentCommandIndex = 0
 }
 
-// findControls will look for gorched.Controls entity in current level
+// findControls will look for gorched.Controls entity in current screen
 func findControls(s *tl.Screen) *gorched.Controls {
-	if world, ok := s.Level().(*gorched.World); ok {
-		for _, e := range world.Entities {
-			if c, ok := e.(*gorched.Controls); ok {
-				return c
-			}
+	for _, e := range s.Entities {
+		if c, ok := e.(*gorched.Controls); ok {
+			return c
 		}
 	}
 	panic("Controls not found")
+}
+
+// findControls will look for gorched.Round entity in current screen
+func findRound(s *tl.Screen) *gorched.Round {
+	for _, e := range s.Entities {
+		if c, ok := e.(*gorched.Round); ok {
+			return c
+		}
+	}
+	panic("Round not found")
 }

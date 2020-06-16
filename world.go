@@ -19,6 +19,7 @@ type World struct {
 	options WorldOptions
 	// entitiesToRemove holds references to entities which will be removed on next Tick
 	entitiesToRemove []tl.Drawable
+	onEntityRemove   map[tl.Drawable]func()
 }
 
 // WorldOptions provide configuration needed for generating game world (one round).
@@ -102,23 +103,17 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		trees = trees.CutAround(x, y, w, h)
 	}
 
-	// create controls
-	controls := &Controls{
-		game:            game,
-		tanks:           tanks,
-		activeTankIndex: game.startingPlayerIndex,
-	}
-
 	// create level with all entities
 	bg := tl.Attr(111)
 	if game.options.LowColor {
 		bg = tl.ColorBlue
 	}
 	world := &World{
-		BaseLevel: tl.NewBaseLevel(tl.Cell{Bg: bg}),
-		terrain:   terrain,
-		physics:   &physics.Physics{Gravity: 9.81, Ground: terrain.HeightInside},
-		options:   o,
+		BaseLevel:      tl.NewBaseLevel(tl.Cell{Bg: bg}),
+		terrain:        terrain,
+		physics:        &physics.Physics{Gravity: 9.81, Ground: terrain.HeightInside},
+		options:        o,
+		onEntityRemove: map[tl.Drawable]func(){},
 	}
 	world.AddEntity(clouds)
 	for _, c := range terrain.Entities() {
@@ -130,7 +125,6 @@ func NewWorld(game *Game, o WorldOptions) *World {
 	for _, t := range tanks {
 		world.AddEntity(t)
 	}
-	world.AddEntity(controls)
 
 	debug.Logf("New world created width=%d height=%d seed=%d", o.Width, o.Height, o.Seed)
 
@@ -188,8 +182,17 @@ func (w *World) Draw(s *tl.Screen) {
 func (w *World) Tick(e tl.Event) {
 	for _, entity := range w.entitiesToRemove {
 		w.BaseLevel.RemoveEntity(entity)
+		if callback := w.onEntityRemove[entity]; callback != nil {
+			callback()
+			w.onEntityRemove[entity] = nil
+		}
 	}
 	w.BaseLevel.Tick(e)
+}
+
+// OnEntityRemove registers callback f which will be called right after given entity e will be removed from World
+func (w *World) OnEntityRemove(e tl.Drawable, f func()) {
+	w.onEntityRemove[e] = f
 }
 
 // IsLowColor is helper function for quick access to LowColor world option in Draw methods
@@ -205,4 +208,10 @@ func IsLowColor(s *tl.Screen) bool {
 // Zero is used as default value for entities do not implementing ZIndexer.
 type ZIndexer interface {
 	ZIndex() int
+}
+
+// ExtendedLevel extends termloop.Level with additional functionality
+type ExtendedLevel interface {
+	tl.Level
+	OnEntityRemove(e tl.Drawable, f func())
 }

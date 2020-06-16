@@ -34,15 +34,15 @@ type SetAngle struct {
 
 // Eval evaluates command
 func (a *SetAngle) Eval(c *GameContext) bool {
-	if c.Controls.ActiveTank().Angle() == a.Angle {
+	if c.Round.ActiveTank().Angle() == a.Angle {
 		return true
 	}
 	t := c.Memory.AddFloat("t", c.Dt)
 	if t > 0.01 {
-		if c.Controls.ActiveTank().Angle() < a.Angle {
-			c.Controls.ActiveTank().MoveUp()
+		if c.Round.ActiveTank().Angle() < a.Angle {
+			c.Round.ActiveTank().MoveUp()
 		} else {
-			c.Controls.ActiveTank().MoveDown()
+			c.Round.ActiveTank().MoveDown()
 		}
 		c.Memory.Clear("t")
 	}
@@ -56,10 +56,10 @@ type Shoot struct {
 
 // Eval evaluates command
 func (s *Shoot) Eval(c *GameContext) bool {
-	if c.Controls.ActiveTank().IsIdle() {
+	if c.Round.ActiveTank().IsIdle() {
 		c.Controls.Shoot()
 	}
-	if c.Controls.ActiveTank().IsLoading() && c.Controls.ActiveTank().Power() >= s.Power {
+	if c.Round.ActiveTank().IsLoading() && c.Round.ActiveTank().Power() >= s.Power {
 		c.Controls.Shoot()
 		return true
 	}
@@ -73,7 +73,7 @@ type WaitForFinishTurn struct{}
 
 // Eval evaluates command
 func (w *WaitForFinishTurn) Eval(c *GameContext) bool {
-	return c.Controls.IsTurnFinished()
+	return c.Round.IsTurnFinished()
 }
 
 // NextRound will switch game to the next round.
