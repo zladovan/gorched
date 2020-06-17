@@ -36,6 +36,8 @@ type Tank struct {
 	label *Label
 	// asciiOnly if true will change sprite of the tank to the one containing no unicode characters
 	asciiOnly bool
+	// hits contains numbers of taken damage to this tank, they will be used to create flying labels in next frame
+	hits []int
 }
 
 // TankState describes the state of Tank
@@ -244,7 +246,21 @@ func (t *Tank) Hit() {
 // Optionally (use nil to ignore) you can specify enemy which caused this damage.
 // If health goes on or below zero tank will go to Dead state.
 func (t *Tank) TakeDamage(amount int, enemy *Tank) {
-	t.health -= amount
+	if amount <= 0 {
+		return
+	}
+
+	// real amount taken
+	// here is the place to apply some reductions e.g. because of shield
+	take := gmath.Min(t.health, amount)
+
+	// decrease health by taken damage
+	t.health -= take
+
+	// add to hits real taken amount to be shown in flying label on next draw
+	t.hits = append(t.hits, -take)
+
+	// noting to do more if tank is still alive
 	if t.health > 0 {
 		return
 	}
@@ -317,6 +333,14 @@ func (t *Tank) Draw(s *tl.Screen) {
 	t.Entity.Draw(s)
 	// draw label above tank
 	t.label.Draw(s)
+
+	// draw potential hit labels caused by taken damage
+	for _, h := range t.hits {
+		l := NewFlyingLabel(*t.body.Position.As2I().Translate(0, -3), t.color)
+		l.ShowNumber(h)
+		world.AddEntity(l)
+	}
+	t.hits = []int{}
 }
 
 // calculates initial position of the bullet

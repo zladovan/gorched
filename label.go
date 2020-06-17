@@ -5,6 +5,7 @@ import (
 
 	tl "github.com/JoelOtter/termloop"
 	"github.com/zladovan/gorched/gmath"
+	"github.com/zladovan/gorched/physics"
 )
 
 // TODO: find more descriptive name
@@ -16,6 +17,8 @@ type Label struct {
 	// position of center of this label
 	position gmath.Vector2i
 	// how many seconds will be label visible
+	maxttl float64
+	// remaining seconds for label to be visible
 	ttl float64
 }
 
@@ -25,12 +28,13 @@ func NewLabel(x, y int, color tl.Attr) *Label {
 	return &Label{
 		Text:     tl.NewText(x, y, "", color|tl.AttrBold, tl.ColorDefault),
 		position: gmath.Vector2i{X: x, Y: y},
+		maxttl:   1,
 	}
 }
 
 // Show sets some text to the label and show it for one second.
 func (l *Label) Show(s string) {
-	l.ttl = 1
+	l.ttl = l.maxttl
 	l.Text.SetText(s)
 	l.Text.SetPosition(l.position.X-len(s)/2, l.position.Y)
 }
@@ -47,4 +51,46 @@ func (l *Label) Draw(s *tl.Screen) {
 		l.Text.Draw(s)
 		l.ttl -= s.TimeDelta()
 	}
+}
+
+// FlyingLabel is text entity which will fly up for two seconds and then it removes itself from world.
+// After create you need to call one of Show methods to show some text.
+type FlyingLabel struct {
+	*Label
+	body *physics.Body
+}
+
+// NewFlyingLabel creates FlyingLabel on given position with given color.
+// To set some text use one of the Show methods.
+func NewFlyingLabel(position gmath.Vector2i, color tl.Attr) *FlyingLabel {
+	l := NewLabel(position.X, position.Y, color)
+	l.maxttl = 2
+	return &FlyingLabel{
+		Label: l,
+		body: &physics.Body{
+			Position: *position.As2F(),
+			Mass:     0.5,
+			Velocity: gmath.Vector2f{X: 0, Y: -8},
+		},
+	}
+}
+
+// Draw draws label if it is not out of ttl
+func (l *FlyingLabel) Draw(s *tl.Screen) {
+	// update label y coordinate based on physical body
+	lx, _ := l.Label.Text.Position()
+	l.Label.Text.SetPosition(lx, l.body.Position.As2I().Y)
+
+	// draw original label
+	l.Label.Draw(s)
+
+	// after ttl remove from level
+	if l.ttl <= 0 {
+		s.Level().RemoveEntity(l)
+	}
+}
+
+// Body returns physical body of this label
+func (l *FlyingLabel) Body() *physics.Body {
+	return l.body
 }
