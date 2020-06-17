@@ -94,3 +94,9 @@ func (l *FlyingLabel) Draw(s *tl.Screen) {
 func (l *FlyingLabel) Body() *physics.Body {
 	return l.body
 }
+
+// ZIndex return z-index of the label
+// It should be higher than z-index of tank and trees but lower z-index of explosion.
+func (l *FlyingLabel) ZIndex() int {
+	return 2001
+}
