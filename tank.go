@@ -2,7 +2,9 @@ package gorched
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
+	"strings"
 
 	tl "github.com/JoelOtter/termloop"
 	"github.com/zladovan/gorched/debug"
@@ -284,7 +286,14 @@ func (t *Tank) IsAlive() bool {
 }
 
 // Tick is not used now
-func (t *Tank) Tick(e tl.Event) {}
+func (t *Tank) Tick(e tl.Event) {
+	// Show health if nothing else is visible on label above tank
+	if !t.label.IsVisible() {
+		points := int(math.Ceil(float64(t.health) / 100 * 4))
+		spaces := 4 - points
+		t.label.ShowText(strings.Repeat(".", points) + strings.Repeat(" ", spaces))
+	}
+}
 
 // Draw tank
 func (t *Tank) Draw(s *tl.Screen) {
