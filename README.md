@@ -21,6 +21,8 @@ Gorched is terminal based game written in [Go](https://golang.org/) inspired by 
 
 You can try Gorched online on [gorched.zladovan.repl.run](http://gorched.zladovan.repl.run/).
 
+>Performance in online terminal is currently much worse than in real terminal !
+
 ## Installation
 
 ### General
