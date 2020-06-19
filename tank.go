@@ -1,6 +1,7 @@
 package gorched
 
 import (
+	"fmt"
 	"math/rand"
 
 	tl "github.com/JoelOtter/termloop"
@@ -33,7 +34,7 @@ type Tank struct {
 	// previousState holds state in previous frame, it's useful for actions on state transitions
 	previousState TankState
 	// label is used to display info about angle, power or to show some message
-	label *Label
+	label *TempLabel
 	// asciiOnly if true will change sprite of the tank to the one containing no unicode characters
 	asciiOnly bool
 	// hits contains numbers of taken damage to this tank, they will be used to create flying labels in next frame
@@ -63,10 +64,13 @@ func NewTank(player *Player, position gmath.Vector2i, angle int, color tl.Attr, 
 			Position: *position.As2F(),
 			Mass:     3,
 		},
-		health:    100,
-		angle:     angle,
-		color:     color,
-		label:     NewLabel(position.X+1, position.Y-4, color),
+		health: 100,
+		angle:  angle,
+		color:  color,
+		label: &TempLabel{
+			Label: NewLabel(*position.Translate(1, -4), "", Formatting{Color: color}),
+			TTL:   1,
+		},
 		asciiOnly: asciiOnly,
 	}
 }
@@ -238,7 +242,7 @@ var phrasesAfterHit = []string{
 
 // Hit should be called when this tank kill some enemy
 func (t *Tank) Hit() {
-	t.label.Show(phrasesAfterHit[rand.Intn(len(phrasesAfterHit))])
+	t.label.ShowText(phrasesAfterHit[rand.Intn(len(phrasesAfterHit))])
 	t.player.hits++
 }
 
@@ -288,9 +292,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 	// update entity and label positions based on body position
 	y := int(t.body.Position.Y) - 3
 	t.Entity.SetPosition(int(t.body.Position.X)-2, y)
-	t.label.position.Y = y - 1
-	lx, _ := t.label.Text.Position()
-	t.label.Text.SetPosition(lx, t.label.position.Y)
+	t.label.SetPosition(gmath.Vector2i{X: t.label.Position().X, Y: y - 1})
 
 	// get the world
 	world := s.Level().(ExtendedLevel)
@@ -336,8 +338,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 
 	// draw potential hit labels caused by taken damage
 	for _, h := range t.hits {
-		l := NewFlyingLabel(*t.body.Position.As2I().Translate(0, -3), t.color)
-		l.ShowNumber(h)
+		l := NewFlyingLabel(*t.body.Position.Translate(0, -3).As2I(), fmt.Sprintf("%d", h), Formatting{Color: t.color})
 		world.AddEntity(l)
 	}
 	t.hits = []int{}

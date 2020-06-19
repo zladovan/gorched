@@ -8,65 +8,160 @@ import (
 	"github.com/zladovan/gorched/physics"
 )
 
-// TODO: find more descriptive name
-
-// Label represents text entity which is hidden after one second if it's not updated.
+// Label is text entity with one row of text.
 type Label struct {
-	// it extends text entity
-	*tl.Text
-	// position of center of this label
+	// position is reference position of this label
 	position gmath.Vector2i
-	// how many seconds will be label visible
-	maxttl float64
-	// remaining seconds for label to be visible
-	ttl float64
+	// format defines text formatting
+	format Formatting
+	// entity is used to draw text to the screen
+	entity *tl.Text
+	// text is text which will be drawn
+	text string
 }
 
-// NewLabel creates new label with center in position defined by given x and y coordinates.
-// Label has not text yet and it's hidden. You need to call Show().
-func NewLabel(x, y int, color tl.Attr) *Label {
-	return &Label{
-		Text:     tl.NewText(x, y, "", color|tl.AttrBold, tl.ColorDefault),
-		position: gmath.Vector2i{X: x, Y: y},
-		maxttl:   1,
+// Alignment defines types how the text of the label will be shifted from Label's position
+type Alignment = uint8
+
+const (
+	// Center alignment will draw test with Label position as the center
+	Center Alignment = iota
+	// Right alignment will draw text starting from Label position
+	Right
+	// Left alignment will draw text ending in Label position
+	Left
+)
+
+// Formatting defines text formatting options for Label
+type Formatting struct {
+	// Color is foreground color
+	Color tl.Attr
+	// Background is background color
+	Background tl.Attr
+	// Align is text alignment
+	Align Alignment
+}
+
+// NewLabel creates new label.
+// Given position is reference position and final entity could be moved from this position according used fromat alignment.
+func NewLabel(position gmath.Vector2i, text string, format Formatting) *Label {
+	l := &Label{
+		position: position,
+		format:   format,
+		text:     text,
 	}
+	l.refresh()
+	return l
 }
 
-// Show sets some text to the label and show it for one second.
-func (l *Label) Show(s string) {
-	l.ttl = l.maxttl
-	l.Text.SetText(s)
-	l.Text.SetPosition(l.position.X-len(s)/2, l.position.Y)
+// Draw will draw this label to the screen
+func (l *Label) Draw(s *tl.Screen) {
+	l.entity.Draw(s)
 }
 
-// ShowNumber sets some number as text.
-// See Show().
-func (l *Label) ShowNumber(i int) {
-	l.Show(fmt.Sprintf("%d", i))
+// Tick does nothing now
+func (l *Label) Tick(e tl.Event) {}
+
+// SetText will change text of this label
+func (l *Label) SetText(text string) {
+	l.text = text
+	l.refresh()
+}
+
+// SetPosition will change position of this label.
+// Given position is reference position and final entity could be moved from this position according used fromat alignment.
+func (l *Label) SetPosition(p gmath.Vector2i) {
+	l.position = p
+	l.refresh()
+}
+
+// Position returns reference position of this label
+func (l *Label) Position() gmath.Vector2i {
+	return l.position
+}
+
+// refresh recreate wrapped termloop.Text entity
+func (l *Label) refresh() {
+	len := len([]rune(l.text))
+	x := l.position.X
+	y := l.position.Y
+	switch l.format.Align {
+	case Left:
+		x -= len
+	case Center:
+		x -= len / 2
+	}
+	l.entity = tl.NewText(x, y, l.text, l.format.Color|tl.AttrBold, l.format.Background)
+}
+
+// ZIndex return z-index of the label
+// It should be higher than z-index of tank and trees but lower z-index of explosion.
+func (l *Label) ZIndex() int {
+	return 2001
+}
+
+// TempLabel is Label which is hidden after TTL seconds if it's not updated with one of Show methods.
+// If you want to make it visible right after the creation set RemainingTTL to non zero value.
+// Otherwise it will be shown after first call of one of Show methods.
+type TempLabel struct {
+	// it extends from Label
+	*Label
+	// TTL is how many seconds will be label visible when shown
+	TTL float64
+	// RemainingTTL is how many seconds remains to be hidden
+	RemainingTTL float64
+	// Remove if is true label will be removed from world after TTL seconds
+	Remove bool
+}
+
+// Show makes label again visible for TTL seconds.
+func (l *TempLabel) Show() {
+	l.RemainingTTL = l.TTL
+}
+
+// ShowText sets some text to the label and show it for TTL seconds.
+func (l *TempLabel) ShowText(s string) {
+	l.SetText(s)
+	l.Show()
+}
+
+// ShowNumber sets some number as to the label and show it for TTL seconds.
+// See ShowText().
+func (l *TempLabel) ShowNumber(i int) {
+	l.ShowText(fmt.Sprintf("%d", i))
 }
 
 // Draw draws label if it is not out of ttl
-func (l *Label) Draw(s *tl.Screen) {
-	if l.ttl > 0 {
-		l.Text.Draw(s)
-		l.ttl -= s.TimeDelta()
+func (l *TempLabel) Draw(s *tl.Screen) {
+	if l.IsVisible() {
+		l.Label.Draw(s)
+		l.RemainingTTL -= s.TimeDelta()
+	} else if l.Remove {
+		s.Level().RemoveEntity(l)
 	}
 }
 
+// IsVisible returns true if label is not yet ouf of time to be drawn
+func (l *TempLabel) IsVisible() bool {
+	return l.RemainingTTL > 0
+}
+
 // FlyingLabel is text entity which will fly up for two seconds and then it removes itself from world.
-// After create you need to call one of Show methods to show some text.
 type FlyingLabel struct {
-	*Label
+	*TempLabel
 	body *physics.Body
 }
 
-// NewFlyingLabel creates FlyingLabel on given position with given color.
+// NewFlyingLabel creates FlyingLabel on given position with given text and fromatting.
 // To set some text use one of the Show methods.
-func NewFlyingLabel(position gmath.Vector2i, color tl.Attr) *FlyingLabel {
-	l := NewLabel(position.X, position.Y, color)
-	l.maxttl = 2
+func NewFlyingLabel(position gmath.Vector2i, text string, format Formatting) *FlyingLabel {
 	return &FlyingLabel{
-		Label: l,
+		TempLabel: &TempLabel{
+			Label:        NewLabel(position, text, format),
+			TTL:          2,
+			RemainingTTL: 2,
+			Remove:       true,
+		},
 		body: &physics.Body{
 			Position: *position.As2F(),
 			Mass:     0.5,
@@ -78,16 +173,10 @@ func NewFlyingLabel(position gmath.Vector2i, color tl.Attr) *FlyingLabel {
 // Draw draws label if it is not out of ttl
 func (l *FlyingLabel) Draw(s *tl.Screen) {
 	// update label y coordinate based on physical body
-	lx, _ := l.Label.Text.Position()
-	l.Label.Text.SetPosition(lx, l.body.Position.As2I().Y)
+	l.TempLabel.SetPosition(*l.body.Position.As2I())
 
 	// draw original label
-	l.Label.Draw(s)
-
-	// after ttl remove from level
-	if l.ttl <= 0 {
-		s.Level().RemoveEntity(l)
-	}
+	l.TempLabel.Draw(s)
 }
 
 // Body returns physical body of this label
@@ -95,8 +184,8 @@ func (l *FlyingLabel) Body() *physics.Body {
 	return l.body
 }
 
-// ZIndex return z-index of the label
-// It should be higher than z-index of tank and trees but lower z-index of explosion.
+// ZIndex return z-index of the flying label
+// It should be higher than z-index of standard label.
 func (l *FlyingLabel) ZIndex() int {
-	return 2001
+	return l.TempLabel.ZIndex() + 1
 }
