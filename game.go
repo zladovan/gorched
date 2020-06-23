@@ -100,7 +100,7 @@ func (g *Game) InitialSeed() int64 {
 
 // LastSeed returns seed used for the last (current active) level.
 func (g *Game) LastSeed() int64 {
-	return g.options.Seed + int64(g.round.Number())
+	return g.options.Seed + int64(g.round.Number()-1)
 }
 
 // Hud returns games HUD
