@@ -443,10 +443,10 @@ func NewTomb(position gmath.Vector2i, color tl.Attr) *Tomb {
 
 // createTombCanvas creates canvas with tomb sprite
 func createTombCanvas(color tl.Attr) *tl.Canvas {
-	p := draw.BlankPrinter(6, 3).WithFg(color)
-	p.WriteLines(1, 1, []string{
-		" ▄█▄",
-		"  █",
+	p := draw.BlankPrinter(3, 2).WithFg(color)
+	p.WriteLines(0, 0, []string{
+		"▄█▄",
+		" █",
 	})
 	return p.Canvas
 }
@@ -454,7 +454,7 @@ func createTombCanvas(color tl.Attr) *tl.Canvas {
 // Draw draws tomb stone
 func (t *Tomb) Draw(s *tl.Screen) {
 	offsetx := -1
-	offsety := -3
+	offsety := -2
 	for i := 0; i < len(*t.canvas); i++ {
 		for j := 0; j < len((*t.canvas)[0]); j++ {
 			s.RenderCell(int(t.body.Position.X)+i+offsetx, int(t.body.Position.Y)+j+offsety, &(*t.canvas)[i][j])
@@ -478,5 +478,5 @@ func (t *Tomb) Body() *physics.Body {
 
 // BottomLine returns line x coordinates for collision with the ground when falling
 func (t *Tomb) BottomLine() (int, int) {
-	return 1, 1
+	return 0, 0
 }
