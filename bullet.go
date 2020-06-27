@@ -57,8 +57,8 @@ func (b *Bullet) Draw(s *tl.Screen) {
 
 	// check if out of screen
 	if int(b.body.Position.Y) < 0 || int(b.body.Position.X) < 0 || int(b.body.Position.X) > sw {
-		x := gmath.Clamp(0, float64(sw), b.body.Position.X)
-		y := gmath.Clamp(0, float64(sh), b.body.Position.Y)
+		x := gmath.Clampf(0, float64(sw), b.body.Position.X)
+		y := gmath.Clampf(0, float64(sh), b.body.Position.Y)
 		d := b.body.Position.Translate(-x, -y).Length()
 		dstr := fmt.Sprintf("%d", int(d))
 

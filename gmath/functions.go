@@ -17,6 +17,13 @@ func Max(x, y int) int {
 // Clamp returns given value if it's in range given by min and max.
 // If value < min then min will be returned.
 // If value > max then max will be returned.
-func Clamp(min, max, value float64) float64 {
+func Clamp(min, max, value int) int {
+	return Min(Max(min, value), max)
+}
+
+// Clampf returns given value if it's in range given by min and max.
+// If value < min then min will be returned.
+// If value > max then max will be returned.
+func Clampf(min, max, value float64) float64 {
 	return math.Min(math.Max(min, value), max)
 }
