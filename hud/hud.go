@@ -76,6 +76,14 @@ func (h *HUD) ShowScore() *ui.MessageBox {
 	return score
 }
 
+// ShowAttributes shows form with players attributes.
+// If readOnly is true it will be not possible to modify attributes
+func (h *HUD) ShowAttributes(readOnly bool) *AttributesForm {
+	form := NewAttributesForm(h.game.Players(), readOnly)
+	h.ShowForm(form)
+	return form
+}
+
 // Draw draws all entities of HUD
 func (h *HUD) Draw(s *tl.Screen) {
 	// reset skipTick flag if needed

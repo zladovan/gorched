@@ -63,7 +63,7 @@ func NewGame(o GameOptions) *Game {
 	}
 
 	// init players
-	game.players = make([]*Player, o.PlayerCount)
+	game.players = make(core.Players, o.PlayerCount)
 	for pi := range game.players {
 		game.players[pi] = core.NewPlayer(fmt.Sprintf("Player %d", pi+1))
 	}

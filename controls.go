@@ -43,6 +43,8 @@ func (c *Controls) Tick(e tl.Event) {
 		c.ShowInfo()
 	case 's':
 		c.ShowScore()
+	case 'a':
+		c.ShowAttributes()
 	}
 	// for the browser mode we cannot use ctrl+n and ctr+r as we would leave the window
 	if c.game.options.BrowserMode {
@@ -104,4 +106,9 @@ func (c *Controls) ShowInfo() {
 // ShowScore shows actual score board
 func (c *Controls) ShowScore() {
 	c.game.Hud().ShowScore()
+}
+
+// Show attributes dialog
+func (c *Controls) ShowAttributes() {
+	c.game.hud.ShowAttributes(true)
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/core"
 	"github.com/zladovan/gorched/debug"
 	"github.com/zladovan/gorched/draw"
 	"github.com/zladovan/gorched/gmath"
@@ -20,7 +21,9 @@ type Tank struct {
 	// it extends from termloop.Entity
 	*tl.Entity
 	// player is reference to Player controlling this Tank
-	player *Player
+	player *core.Player
+	// stats is used to collect statistics for player while using this tank
+	stats core.Stats
 	// body is physical body of the tank used for falling simulation
 	body *physics.Body
 	// health holds hit points number between 0 and 100, when 0 is already dead
@@ -58,7 +61,7 @@ const (
 )
 
 // NewTank creates tank for given player.
-func NewTank(player *Player, position gmath.Vector2i, angle int, color tl.Attr, asciiOnly bool) *Tank {
+func NewTank(player *core.Player, position gmath.Vector2i, angle int, color tl.Attr, asciiOnly bool) *Tank {
 	return &Tank{
 		Entity: tl.NewEntityFromCanvas(position.X-2, position.Y-3, *createCanvas(angle, color, asciiOnly)),
 		player: player,
@@ -66,7 +69,7 @@ func NewTank(player *Player, position gmath.Vector2i, angle int, color tl.Attr, 
 			Position: *position.As2F(),
 			Mass:     3,
 		},
-		health: 100,
+		health: player.Attributes.Armour(),
 		angle:  angle,
 		color:  color,
 		label: &TempLabel{
@@ -245,7 +248,7 @@ var phrasesAfterHit = []string{
 // Hit should be called when this tank kill some enemy
 func (t *Tank) Hit() {
 	t.label.ShowText(phrasesAfterHit[rand.Intn(len(phrasesAfterHit))])
-	t.player.hits++
+	t.stats.Kills++
 }
 
 // TakeDamage will reduce this tank's health by given amount.
@@ -274,8 +277,10 @@ func (t *Tank) TakeDamage(amount int, enemy *Tank) {
 	// deadly take
 	t.health = 0
 	t.state = Dead
-	t.player.takes++
-	if enemy != t && enemy != nil {
+	t.stats.Deaths++
+	if t == enemy {
+		t.stats.Suicides++
+	} else if enemy != nil {
 		enemy.Hit()
 	}
 }
@@ -289,7 +294,7 @@ func (t *Tank) IsAlive() bool {
 func (t *Tank) Tick(e tl.Event) {
 	// Show health if nothing else is visible on label above tank
 	if !t.label.IsVisible() {
-		points := int(math.Ceil(float64(t.health) / 100 * 4))
+		points := int(math.Ceil(float64(t.health) / float64(t.player.Attributes.Armour()) * 4))
 		spaces := 4 - points
 		t.label.ShowText(strings.Repeat(".", points) + strings.Repeat(" ", spaces))
 	}
@@ -311,8 +316,8 @@ func (t *Tank) Draw(s *tl.Screen) {
 		if t.previousState != Shooting {
 			// create new bullet
 			debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
-			// TODO: choose strength of bullet based on player stats
-			bullet := NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, 4)
+			// TODO: choose strength of bullet based on player attrs
+			bullet := NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, t.player.Attributes.Explosion())
 			world.AddEntity(bullet)
 			world.OnEntityRemove(bullet, func() {
 				if t.state != Dead {
@@ -324,7 +329,7 @@ func (t *Tank) Draw(s *tl.Screen) {
 		// increase shooting power
 		// idea is that increase should be faster for each next 5 points
 		t.power += (10 + t.power/5) * s.TimeDelta()
-		if t.power >= 100 {
+		if t.power >= float64(t.player.Attributes.Power()) {
 			t.power = 1
 		}
 		t.label.ShowNumber(int(t.power))
@@ -403,7 +408,7 @@ func (t *Tank) Angle() int {
 	return t.angle
 }
 
-// Power returns power which will be used to shoot bullet, can be 0 - 100
+// Power returns power which will be used to shoot bullet
 func (t *Tank) Power() int {
 	return int(t.power)
 }

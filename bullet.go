@@ -79,7 +79,7 @@ func (b *Bullet) Draw(s *tl.Screen) {
 
 	// if bullet hit somewhere it's dead
 	if b.isInCollision {
-		s.Level().AddEntity(NewExplosion(*b.body.Position.As2I(), b.strength, b.shooter))
+		s.Level().AddEntity(NewExplosion(*b.body.Position.As2I(), b.strength+3, b.shooter))
 		b.die(s)
 	}
 }

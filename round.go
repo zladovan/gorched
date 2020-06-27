@@ -63,14 +63,41 @@ func (r *Round) Draw(s *tl.Screen) {
 	case WaitForTurnFinish:
 		if r.IsTurnFinished() {
 			if r.NumberOfTanksAlive() <= 1 {
-				r.state = Finished
-				r.game.Hud().ShowScore()
+				r.finishRound()
 			} else {
 				r.state = PlayerOnTurn
 				r.ActivateNextTank()
 			}
 		}
 	}
+}
+
+// finishRound is called when round is finished
+func (r *Round) finishRound() {
+	r.state = Finished
+
+	// states gained during this round are added to players on round finish
+	// all players that didn't made suicide gain one point
+	// winner gain one more point
+	for pi, player := range r.game.players {
+		tank := r.tanks[pi]
+		player.AddStats(tank.stats)
+		if tank.stats.Suicides == 0 {
+			player.Attributes.Points++
+		}
+		if tank.IsAlive() {
+			player.Attributes.Points++
+		}
+	}
+
+	// score board following by attributes form are shown at the end of round
+	score := r.game.Hud().ShowScore()
+	score.OnClose(func() {
+		attrs := r.game.Hud().ShowAttributes(false)
+		attrs.OnClose(func() {
+			r.Next()
+		})
+	})
 }
 
 // Tick does nothing now
