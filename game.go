@@ -1,32 +1,28 @@
 package gorched
 
 import (
+	"fmt"
+
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/core"
 	"github.com/zladovan/gorched/debug"
+	"github.com/zladovan/gorched/hud"
 )
 
 // Game holds information which is kept during whole session.
 type Game struct {
 	// players holds all players in the game
-	players []*Player
+	players core.Players
 	// engine references to termloop's game
 	engine *tl.Game
 	// options holds game options used to create new game
 	options GameOptions
 	// hud holds games HUD
-	hud *HUD
+	hud *hud.HUD
 	// controls contains processing of input
 	controls *Controls
 	// round is responsible for creating and managing state of game rounds
 	round *Round
-}
-
-// Player holds stats for player which are aggregated during whole session.
-type Player struct {
-	// how many times player hits some enemy
-	hits int
-	// how many times player was hit by some enemy
-	takes int
 }
 
 // GameOptions provide configuration needed for creating new game
@@ -69,21 +65,27 @@ func NewGame(o GameOptions) *Game {
 	// init players
 	game.players = make([]*Player, o.PlayerCount)
 	for pi := range game.players {
-		game.players[pi] = &Player{}
+		game.players[pi] = core.NewPlayer(fmt.Sprintf("Player %d", pi+1))
 	}
 
-	// init HUD with info visible at startup
-	game.hud = NewHUD(game)
-	game.hud.ShowInfo()
+	// init controls
+	game.controls = &Controls{game: game}
+	game.engine.Screen().AddEntity(game.controls)
+
+	// init HUD
+	game.hud = hud.NewHUD(game, hud.Options{
+		ASCIIOnly:   o.ASCIIOnly,
+		LowColor:    o.LowColor,
+		BrowserMode: o.BrowserMode,
+	})
 	game.engine.Screen().AddEntity(game.hud)
 
 	// init round
 	game.round = NewRound(game)
 	game.engine.Screen().AddEntity(game.round)
 
-	// init controls
-	game.controls = &Controls{game: game}
-	game.engine.Screen().AddEntity(game.controls)
+	// show info at startup
+	game.hud.ShowInfo()
 
 	return game
 }
@@ -104,11 +106,16 @@ func (g *Game) LastSeed() int64 {
 }
 
 // Hud returns games HUD
-func (g *Game) Hud() *HUD {
+func (g *Game) Hud() *hud.HUD {
 	return g.hud
 }
 
 // Engine returns reference to underlying game engine
 func (g *Game) Engine() *tl.Game {
 	return g.engine
+}
+
+// Players returns all players in the game
+func (g *Game) Players() core.Players {
+	return g.players
 }

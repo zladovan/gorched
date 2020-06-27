@@ -20,11 +20,8 @@ func (c *Controls) Tick(e tl.Event) {
 		c.game.options.Height = h
 	}
 
-	// when message box is show it's just possible to hide it
-	if c.game.Hud().IsMessageBoxShown() {
-		if e.Type == tl.EventKey {
-			c.HideMessageBox()
-		}
+	// when message box is shown it is in control
+	if c.game.Hud().IsFormShown() {
 		return
 	}
 
@@ -86,10 +83,7 @@ func (c *Controls) Shoot() {
 
 // HideMessageBox will hide any active message box
 func (c *Controls) HideMessageBox() {
-	c.game.Hud().HideMessageBox()
-	if c.game.round.IsFinished() {
-		c.game.round.Next()
-	}
+	c.game.Hud().HideForm()
 }
 
 // NextRound will switch game to the next round
