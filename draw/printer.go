@@ -31,15 +31,38 @@ func (p *Printer) Write(x, y int, s string) {
 
 // WritePoint prints rune c on canvas on position defined by x and y coordinates
 func (p *Printer) WritePoint(x, y int, c rune) {
+	p.drawCell(x, y, tl.Cell{
+		Fg: p.Fg,
+		Bg: p.Bg,
+		Ch: c,
+	})
+}
+
+// drawCell will set cell c on position given by x and y coordinates
+// if given coordinates are out of range it will silently ignore it
+// if background color of given cell is 0 it is considered as transaprent
+// if foreground color of given cell is 0 foreground of underlying cell will be used
+func (p *Printer) drawCell(x, y int, c tl.Cell) {
+	// check if it's possible to draw on given coordinates
 	if x < 0 || x > p.MaxX() {
 		return
 	}
 	if y < 0 || y > p.MaxY() {
 		return
 	}
-	(*p.Canvas)[x][y].Fg = p.Fg
-	(*p.Canvas)[x][y].Bg = p.Bg
-	(*p.Canvas)[x][y].Ch = c
+
+	// rune is always changed
+	(*p.Canvas)[x][y].Ch = c.Ch
+
+	// keep original bg if cell to be drawn has zero background
+	if c.Bg != 0 {
+		(*p.Canvas)[x][y].Bg = c.Bg
+	}
+
+	// keep original fg if cell to be drawn has zero foreground
+	if c.Fg != 0 {
+		(*p.Canvas)[x][y].Fg = c.Fg
+	}
 }
 
 // WriteCenterX writes given string on line y with horizontal alignment.
@@ -80,6 +103,24 @@ func (p *Printer) WriteHorizontalUp(x, y int, s string) {
 // It will start on position given by x and y and it will increasing y for each next rune in given text s.
 func (p *Printer) WriteHorizontalDown(x, y int, s string) {
 	p.WriteHorizontal(x, y, s, false)
+}
+
+// Draw draws another canvas on given position x and y
+func (p *Printer) Draw(x, y int, canvas *tl.Canvas) {
+	for i := 0; i < len(*canvas); i++ {
+		for j := 0; j < len((*canvas)[0]); j++ {
+			p.drawCell(x+i, y+j, (*canvas)[i][j])
+		}
+	}
+}
+
+// Fill fills entire canvas with given rune c
+func (p *Printer) Fill(c rune) {
+	for x := 0; x < p.Width(); x++ {
+		for y := 0; y < p.Height(); y++ {
+			p.WritePoint(x, y, c)
+		}
+	}
 }
 
 // Width returns width of target canvas
