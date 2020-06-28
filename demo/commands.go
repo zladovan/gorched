@@ -95,3 +95,21 @@ func (e *Exit) Eval(c *GameContext) bool {
 	os.Exit(0)
 	return true
 }
+
+// MoveFocus moves focus on ui form to next component
+type MoveFocus struct{}
+
+// Eval evaluates command
+func (m *MoveFocus) Eval(c *GameContext) bool {
+	c.Controls.MoveFocus()
+	return true
+}
+
+// PressButton sends action event to currently focused ui component
+type PressButton struct{}
+
+// Eval evaluates command
+func (p *PressButton) Eval(c *GameContext) bool {
+	c.Controls.PressButton()
+	return true
+}

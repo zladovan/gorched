@@ -108,7 +108,19 @@ func (c *Controls) ShowScore() {
 	c.game.Hud().ShowScore()
 }
 
-// Show attributes dialog
+// ShowAttributes shows attributes dialog
 func (c *Controls) ShowAttributes() {
 	c.game.hud.ShowAttributes(true)
+}
+
+// MoveFocus moves focus to next component on currently opened form.
+// If no form is opened ignore it.
+func (c *Controls) MoveFocus() {
+	c.game.Hud().MoveFocus()
+}
+
+// PressButton sends action event to currently opened form.
+// If no form is opened ignore it.
+func (c *Controls) PressButton() {
+	c.game.Hud().PressButton()
 }

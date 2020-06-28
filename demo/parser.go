@@ -33,6 +33,12 @@ var parsers = map[string]Parser{
 	"nextRound": requireZeroParams(func() (Command, error) {
 		return &NextRound{}, nil
 	}),
+	"moveFocus": requireZeroParams(func() (Command, error) {
+		return &MoveFocus{}, nil
+	}),
+	"pressButton": requireZeroParams(func() (Command, error) {
+		return &PressButton{}, nil
+	}),
 	"exit": requireZeroParams(func() (Command, error) {
 		return &Exit{}, nil
 	}),

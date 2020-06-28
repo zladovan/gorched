@@ -20,6 +20,9 @@ type Form interface {
 	Close()
 	// Closed returns true if this from is already closed
 	Closed() bool
+	// NextFocus moves focus to next component
+	NextFocus()
+	// TODO: move NextFocus to separate interface ?
 }
 
 // BaseForm is basic implementation of form with BaseContainer.
@@ -112,11 +115,7 @@ func (f *BaseForm) Tick(e tl.Event) {
 
 	// move focus index
 	if e.Key == tl.KeyTab {
-		newFocusIndex := f.focusIndex + 1
-		if newFocusIndex >= len(f.focusers) {
-			newFocusIndex = 0
-		}
-		f.setFocusIndex(newFocusIndex)
+		f.NextFocus()
 	}
 
 	// process focus keys
@@ -160,6 +159,15 @@ func (f *BaseForm) Add(components ...Component) {
 // Style can be used to modify form's style
 func (f *BaseForm) Style() *Style {
 	return f.container.Style()
+}
+
+// NextFocus moves focus to next component
+func (f *BaseForm) NextFocus() {
+	newFocusIndex := f.focusIndex + 1
+	if newFocusIndex >= len(f.focusers) {
+		newFocusIndex = 0
+	}
+	f.setFocusIndex(newFocusIndex)
 }
 
 // ClearFocus will remove focus from current focused component.

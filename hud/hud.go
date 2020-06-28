@@ -39,6 +39,11 @@ func NewHUD(game core.Game, options Options) *HUD {
 	return &HUD{game: game, options: options}
 }
 
+// ActiveForm returns currently shown form
+func (h *HUD) ActiveForm() ui.Form {
+	return h.form
+}
+
 // IsFormShown informs wether some message box is currently displayed
 func (h *HUD) IsFormShown() bool {
 	return h.form != nil && !h.form.Closed()
@@ -57,8 +62,12 @@ func (h *HUD) ShowForm(box ui.Form) {
 // HideForm hides any visible message box on the screen
 func (h *HUD) HideForm() {
 	if h.form != nil {
+		before := h.form
 		h.form.Close()
-		h.form = nil
+		// new form can be opened from onClose callback and we do not want to remove it
+		if h.form == before {
+			h.form = nil
+		}
 	}
 }
 
@@ -82,6 +91,27 @@ func (h *HUD) ShowAttributes(readOnly bool) *AttributesForm {
 	form := NewAttributesForm(h.game.Players(), readOnly)
 	h.ShowForm(form)
 	return form
+}
+
+// MoveFocus moves focus to next component on currently opened form.
+// If no form is opened ignore it.
+func (h *HUD) MoveFocus() {
+	if !h.IsFormShown() {
+		return
+	}
+	h.form.NextFocus()
+}
+
+// PressButton sends action event to currently opened form.
+// If no form is opened ignore it.
+func (h *HUD) PressButton() {
+	if !h.IsFormShown() {
+		return
+	}
+	h.form.Tick(tl.Event{
+		Type: tl.EventKey,
+		Key:  tl.KeyEnter,
+	})
 }
 
 // Draw draws all entities of HUD
