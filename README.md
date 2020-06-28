@@ -12,7 +12,7 @@ Gorched is terminal based game written in [Go](https://golang.org/) inspired by 
 ## Features
 
  - rendered in terminal
- - ASCII graphics (actually few unicode symbols were used on tank)
+ - ASCII graphics (actually few unicode symbols were used)
  - procedurally generated world
  - terrain destruction
  - turn based multiplayer
@@ -64,6 +64,7 @@ Gorched currently has only one mode where two players are playing locally agains
 - <kbd>Ctrl</kbd>+<kbd>R</kbd> restart current round
 - <kbd>Ctrl</kbd>+<kbd>N</kbd> start next round
 - <kbd>S</kbd> show score
+- <kbd>A</kbd> show player's attributes
 - <kbd>H</kbd> show help 
 
 > When running from browser use just <kbd>R</kbd> / <kbd>N</kbd> instead of <kbd>Ctrl</kbd>+<kbd>R</kbd> / <kbd>Ctrl</kbd>+<kbd>N</kbd>
