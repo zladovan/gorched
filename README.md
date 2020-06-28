@@ -5,7 +5,7 @@
 
 Gorched is terminal based game written in [Go](https://golang.org/) inspired by "The Mother of all games" [Scorched Earth](https://en.wikipedia.org/wiki/Scorched_Earth_(video_game)).
 
-![showcase](showcase.gif "Showcase recorded from terminal output")
+[![asciicast](https://asciinema.org/a/343762.svg)](https://asciinema.org/a/343762)
 
 > How the game looks like depends on your terminal !
 
@@ -21,7 +21,7 @@ Gorched is terminal based game written in [Go](https://golang.org/) inspired by 
 
 You can try Gorched online on [gorched.zladovan.repl.run](http://gorched.zladovan.repl.run/).
 
->Performance in online terminal is currently much worse than in real terminal !
+>Performance in online terminal can be worse than in real terminal !
 
 ## Installation
 
