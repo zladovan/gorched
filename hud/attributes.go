@@ -73,7 +73,7 @@ func (f *AttributesForm) initPages() {
 func (f *AttributesForm) createPage(pageIndex int, player *core.Player) *ui.BaseContainer {
 	// label with player name
 	name := ui.NewText(player.Name)
-	name.Colors.Fg = name.Colors.Fg | tl.AttrBold
+	name.Colors.Fg = ui.ActivePallette.Standard.Fg | tl.AttrBold
 
 	// attribute values
 	attack := ui.NewValue(player.Attributes.Attack)
