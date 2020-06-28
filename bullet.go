@@ -48,9 +48,9 @@ func (b *Bullet) Draw(s *tl.Screen) {
 	// draw bullet symbol
 	s.RenderCell(int(b.body.Position.X), int(b.body.Position.Y), &tl.Cell{Fg: color, Ch: '■'})
 
-	// check if below the screen
+	// remove if below the screen or too far on the left/right of the screen
 	sw, sh := s.Size()
-	if int(b.body.Position.Y) > sh {
+	if int(b.body.Position.Y) > sh || int(b.body.Position.X) < -100 || int(b.body.Position.X) > sw+100 {
 		b.die(s)
 		return
 	}
