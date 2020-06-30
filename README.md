@@ -5,7 +5,7 @@
 
 Gorched is terminal based game written in [Go](https://golang.org/) inspired by "The Mother of all games" [Scorched Earth](https://en.wikipedia.org/wiki/Scorched_Earth_(video_game)).
 
-[![asciicast](https://asciinema.org/a/343762.svg)](https://asciinema.org/a/343762)
+![showcase](showcase.gif "Showcase recorded from terminal output")
 
 > How the game looks like depends on your terminal !
 
