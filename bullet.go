@@ -19,8 +19,8 @@ type Bullet struct {
 	body *physics.Body
 	// strength of the explosion
 	strength int
-	// true if bullet hit to something
-	isInCollision bool
+	// explosion is created after bullet hit to something
+	explosion *Explosion
 }
 
 // NewBullet creates new bullet.
@@ -78,8 +78,8 @@ func (b *Bullet) Draw(s *tl.Screen) {
 	}
 
 	// if bullet hit somewhere it's dead
-	if b.isInCollision {
-		s.Level().AddEntity(NewExplosion(*b.body.Position.As2I(), b.strength+3, b.shooter))
+	if b.explosion != nil {
+		s.Level().AddEntity(b.explosion)
 		b.die(s)
 	}
 }
@@ -110,11 +110,16 @@ func (b *Bullet) die(s *tl.Screen) {
 
 // Collide check the collisions
 func (b *Bullet) Collide(collision tl.Physical) {
-	b.isInCollision = true
+	b.explosion = NewExplosion(*b.body.Position.As2I(), b.strength+3, b.shooter)
 	b.body.Locked = true
+
+	// collision with tank
 	if target, ok := collision.(*Tank); ok {
-		target.TakeDamage(100+b.strength*10, b.shooter)
+		target.TakeDamage(int(b.explosion.MaxDamage()), b.shooter)
+		b.explosion.AddAlreadyCollided(target)
 	}
+
+	// colision with terrain
 	if _, ok := collision.(*terrain.Column); ok {
 		bx := int(b.body.Position.X)
 		by := int(b.body.Position.Y)

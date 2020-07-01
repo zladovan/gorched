@@ -160,12 +160,23 @@ func (e *Explosion) Collide(collision tl.Physical) {
 			d := e.Center.As2F().Distance(tp.Translate(0, -(float64(e.Center.Y)-tp.Y)/2))
 
 			// damage to be taken is affected by distance of explosion and by the strength of explosion
-			damage := int(math.Max(0, (e.Strength-d)/e.Strength) * (100 + e.Strength*10))
+			damage := int(math.Max(0, (e.Strength-d)/e.Strength) * e.MaxDamage())
 			target.TakeDamage(damage, e.shooter)
 			debug.Logf("Explosion collides with tank damage=%d", damage)
 		}
-		e.collided[collision] = true
+		e.AddAlreadyCollided(collision)
 	}
+}
+
+// AddAlreadyCollided will make ignore later collisions with this explosion and given object p
+// This is useful if you do not want to cause any or any additional damage to p by this explosion.
+func (e *Explosion) AddAlreadyCollided(p tl.Physical) {
+	e.collided[p] = true
+}
+
+// MaxDamage returns maximum amount of damage which can be taken by this explosion
+func (e *Explosion) MaxDamage() float64 {
+	return 100 + e.Strength*10
 }
 
 // afterPeak returns true if explosion was already in it's biggest radius
