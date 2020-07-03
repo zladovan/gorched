@@ -16,6 +16,8 @@
 //   - `shoot p` - load power to `p` and shoot with active player
 //   - `waitForFinishTurn` - will wait for all explosions and bullets are gone and turn is shifted to next player
 //	 - `nextRound` - switches game to the next round
+//	 - `moveFocus` - move focus to next ui component
+//   - `pressButton` - send action event to ui component with focus
 //   - `exit` - exits game
 package demo
 
