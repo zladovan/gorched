@@ -67,7 +67,7 @@ func (c *Cutter) Draw(s *tl.Screen) {
 	// process all pending cuts
 	for _, cut := range c.cuts {
 
-		// for each x which is should be cut we will create new columns updated by current cut
+		// for each x which should be cut we will create new columns updated by current cut
 		newcols := []*Column{}
 		for _, column := range c.terrain.columns[cut.X] {
 

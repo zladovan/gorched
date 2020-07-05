@@ -70,3 +70,9 @@ func (t *Column) BottomLine() (int, int) {
 func (t *Column) MakeHole(cx, cy, r int) {
 	t.terrain.MakeHole(cx, cy, r)
 }
+
+// SetCanvas changes canvas of this column
+func (t *Column) SetCanvas(canvas *tl.Canvas) {
+	t.canvas = canvas
+	t.Entity.SetCanvas(canvas)
+}

@@ -21,6 +21,8 @@ type Terrain struct {
 	columns [][]*Column
 	// cutter provides terrain destruction logic
 	cutter *Cutter
+	// joiner provides terrain columns joining logic
+	joiner *Joiner
 }
 
 // NewTerrain creates new Terrain for given terrain line and height.
@@ -30,6 +32,7 @@ func NewTerrain(line []int, height int, lowColor bool) *Terrain {
 	terrain := &Terrain{height: height}
 	terrain.columns = make([][]*Column, len(line))
 	terrain.cutter = &Cutter{terrain: terrain}
+	terrain.joiner = &Joiner{terrain: terrain}
 
 	// create column for each point in terrain line
 	for x, baseY := range line {
@@ -75,7 +78,7 @@ func (t *Terrain) PositionOn(x int) gmath.Vector2i {
 
 // Entities returns all entities (columns) which is terrain made of
 func (t *Terrain) Entities() []tl.Drawable {
-	entities := []tl.Drawable{t.cutter}
+	entities := []tl.Drawable{t.cutter, t.joiner}
 	for _, cs := range t.columns {
 		for _, c := range cs {
 			entities = append(entities, c)
@@ -101,6 +104,7 @@ func (t *Terrain) CutAround(x, y, w int) {
 func (t *Terrain) MakeHole(cx, cy, r int) {
 	debug.Logf("Hole in the terrain centerx=%d, centery=%d", cx, cy)
 	t.cutter.CutHole(cx, cy, r)
+	t.joiner.Enable()
 }
 
 // Line returns terrain line array where index is x coordinate and value is top y coordinate.
