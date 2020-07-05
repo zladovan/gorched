@@ -1,6 +1,9 @@
 package gorched
 
-import tl "github.com/JoelOtter/termloop"
+import (
+	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/entities"
+)
 
 // Round represents one round in the game.
 // It is responsible for managing state of the round.
@@ -13,13 +16,13 @@ type Round struct {
 	// game refers to the main game object
 	game *Game
 	// world refers to actual game world
-	world *World
+	world *entities.World
 	// index is the index of current round, starting from zero for first round
 	index int
 	// state holds the state of this round
 	state RoundState
 	// tanks contains all tanks in game
-	tanks []*Tank
+	tanks []*entities.Tank
 	// startingPlayerIndex holds index of the player which is first on turn in this round
 	startingPlayerIndex int
 	// onTurnPlayerIndex is index of the player currently on turn
@@ -81,8 +84,8 @@ func (r *Round) finishRound() {
 	// winner gain one more point
 	for pi, player := range r.game.players {
 		tank := r.tanks[pi]
-		player.AddStats(tank.stats)
-		if tank.stats.Suicides == 0 {
+		player.AddStats(tank.Stats())
+		if tank.Stats().Suicides == 0 {
 			player.Attributes.Points++
 		}
 		if tank.IsAlive() {
@@ -106,7 +109,7 @@ func (r *Round) Tick(e tl.Event) {}
 // Restart will put state of this round to the same state as when it was started.
 func (r *Round) Restart() {
 	// create world
-	r.world = NewWorld(r.game, WorldOptions{
+	r.world = entities.NewWorld(r.game, entities.WorldOptions{
 		Width:     r.game.options.Width,
 		Height:    r.game.options.Height,
 		Seed:      r.game.options.Seed + int64(r.index),
@@ -115,10 +118,10 @@ func (r *Round) Restart() {
 	})
 
 	// collect tanks for players
-	r.tanks = make([]*Tank, len(r.game.players))
+	r.tanks = make([]*entities.Tank, len(r.game.players))
 	for i, player := range r.game.players {
 		for _, e := range r.world.Entities {
-			if tank, ok := e.(*Tank); ok && tank.player == player {
+			if tank, ok := e.(*entities.Tank); ok && tank.Player() == player {
 				r.tanks[i] = tank
 			}
 		}
@@ -141,17 +144,17 @@ func (r *Round) Number() int {
 }
 
 // ActiveTank returns tank which is currently active / on turn.
-func (r *Round) ActiveTank() *Tank {
+func (r *Round) ActiveTank() *entities.Tank {
 	return r.tanks[r.onTurnPlayerIndex]
 }
 
 // IsTurnFinished returns true if there are no bullets and explosions in world
 func (r *Round) IsTurnFinished() bool {
 	for _, e := range r.world.Entities {
-		if _, ok := e.(*Bullet); ok {
+		if _, ok := e.(*entities.Bullet); ok {
 			return false
 		}
-		if _, ok := e.(*Explosion); ok {
+		if _, ok := e.(*entities.Explosion); ok {
 			return false
 		}
 	}

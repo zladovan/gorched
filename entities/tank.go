@@ -1,4 +1,4 @@
-package gorched
+package entities
 
 import (
 	"fmt"
@@ -426,6 +426,16 @@ func (t *Tank) IsLoading() bool {
 // IsShooting returns true if tank is shooting now
 func (t *Tank) IsShooting() bool {
 	return t.state == Shooting
+}
+
+// Stats returns statistics for player while using this tank
+func (t *Tank) Stats() core.Stats {
+	return t.stats
+}
+
+// Player returns reference to Player controlling this Tank
+func (t *Tank) Player() *core.Player {
+	return t.player
 }
 
 // Tomb is entity representing tomb stone shown on position where tank was killed

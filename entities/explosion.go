@@ -1,4 +1,4 @@
-package gorched
+package entities
 
 import (
 	"math"
@@ -8,8 +8,8 @@ import (
 	osx "github.com/ojrac/opensimplex-go"
 	"github.com/zladovan/gorched/debug"
 	"github.com/zladovan/gorched/draw"
+	"github.com/zladovan/gorched/entities/terrain"
 	"github.com/zladovan/gorched/gmath"
-	"github.com/zladovan/gorched/terrain"
 )
 
 // Explosion represent effect of explosion.

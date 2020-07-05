@@ -1,4 +1,4 @@
-package gorched
+package entities
 
 import (
 	"fmt"

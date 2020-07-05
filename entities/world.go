@@ -1,13 +1,14 @@
-package gorched
+package entities
 
 import (
 	"math/rand"
 	"sort"
 
 	tl "github.com/JoelOtter/termloop"
+	"github.com/zladovan/gorched/core"
 	"github.com/zladovan/gorched/debug"
+	"github.com/zladovan/gorched/entities/terrain"
 	"github.com/zladovan/gorched/physics"
-	"github.com/zladovan/gorched/terrain"
 )
 
 // World represents game world with all entities.
@@ -37,7 +38,7 @@ type WorldOptions struct {
 }
 
 // NewWorld creates new game world with all entities
-func NewWorld(game *Game, o WorldOptions) *World {
+func NewWorld(game core.Game, o WorldOptions) *World {
 	// random positions in the world are seeded too
 	rnd := rand.New(rand.NewSource(o.Seed))
 
@@ -47,7 +48,7 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		Width:     o.Width,
 		Height:    o.Height,
 		Roughness: 7.5,
-		LowColor:  game.options.LowColor,
+		LowColor:  o.LowColor,
 	})
 
 	// create clouds
@@ -55,26 +56,26 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		Seed:      o.Seed,
 		Width:     o.Width,
 		Height:    o.Height,
-		LowColor:  game.options.LowColor,
-		ASCIIOnly: game.options.ASCIIOnly,
+		LowColor:  o.LowColor,
+		ASCIIOnly: o.ASCIIOnly,
 	})
 
 	// create players
 	// TODO: update for different player counts
 	tanks := []*Tank{
 		NewTank(
-			game.players[0],
+			game.Players()[0],
 			terrain.PositionOn(10+rnd.Intn(10)),
 			0,
 			tl.ColorRed,
-			game.options.ASCIIOnly,
+			o.ASCIIOnly,
 		),
 		NewTank(
-			game.players[1],
+			game.Players()[1],
 			terrain.PositionOn(o.Width-10-rnd.Intn(10)),
 			180,
 			tl.ColorBlack,
-			game.options.ASCIIOnly,
+			o.ASCIIOnly,
 		),
 	}
 
@@ -92,8 +93,8 @@ func NewWorld(game *Game, o WorldOptions) *World {
 		Density:   0.2,
 		MaxSize:   6,
 		MinSpace:  1,
-		LowColor:  game.options.LowColor,
-		ASCIIOnly: game.options.ASCIIOnly,
+		LowColor:  o.LowColor,
+		ASCIIOnly: o.ASCIIOnly,
 	})
 
 	// cut the trees around the tanks
@@ -105,7 +106,7 @@ func NewWorld(game *Game, o WorldOptions) *World {
 
 	// create level with all entities
 	bg := tl.Attr(111)
-	if game.options.LowColor {
+	if o.LowColor {
 		bg = tl.ColorBlue
 	}
 	world := &World{

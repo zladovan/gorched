@@ -1,4 +1,4 @@
-package gorched
+package entities
 
 import (
 	"fmt"
@@ -6,9 +6,9 @@ import (
 
 	tl "github.com/JoelOtter/termloop"
 	"github.com/zladovan/gorched/debug"
+	"github.com/zladovan/gorched/entities/terrain"
 	"github.com/zladovan/gorched/gmath"
 	"github.com/zladovan/gorched/physics"
-	"github.com/zladovan/gorched/terrain"
 )
 
 // Bullet is entity representing bullet shooted from tank.
