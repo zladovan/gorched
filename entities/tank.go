@@ -316,7 +316,6 @@ func (t *Tank) Draw(s *tl.Screen) {
 		if t.previousState != Shooting {
 			// create new bullet
 			debug.Logf("Tank shooting angle=%d power=%f", t.angle, t.power)
-			// TODO: choose strength of bullet based on player attrs
 			bullet := NewBullet(t, t.getBulletInitPos(), float64(int(t.power)), t.angle, t.player.Attributes.Explosion())
 			world.AddEntity(bullet)
 			world.OnEntityRemove(bullet, func() {
