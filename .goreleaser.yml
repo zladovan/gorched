@@ -55,7 +55,7 @@ snapcrafts:
 brews:
   -
     name: gorched
-    github:
+    tap:
       owner: zladovan
       name: homebrew-tap
     folder: Formula
