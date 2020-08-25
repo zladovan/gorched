@@ -69,3 +69,21 @@ scoop:
   homepage: https://github.com/zladovan/gorched
   description: Terminal based game inspired by "The Mother of all games" Scorched Earth
   license: MIT
+
+nfpms:
+  -
+    replacements:
+      amd64: 64-bit
+      386: 32-bit
+
+    formats:
+      - deb
+      - rpm
+
+    epoch: 1
+    release: 1
+    vendor: zladovan
+    homepage: https://github.com/zladovan/gorched
+    maintainer: jan cabala (cabala.jan@gmail.com)
+    description: Terminal based game inspired by "The Mother of all games" Scorched Earth
+    license: MIT
