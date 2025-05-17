@@ -75,7 +75,7 @@ Alternatively you can run Gorched from source code.
 
     git clone https://github.com/zladovan/gorched.git
     cd gorched
-    go run cmd/main.go
+    go run cmd/gorched/main.go
 
 >You need to have [git](https://git-scm.com/downloads) and [golang](https://golang.org/dl/) installed locally
 
