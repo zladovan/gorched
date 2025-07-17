@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -13,17 +15,10 @@ builds:
       - windows
 
 archives:
-  - 
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-
+  -
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [ 'zip' ]
 
 changelog:
   sort: asc
@@ -52,36 +47,39 @@ snapcrafts:
         * turn based multiplayer
     license: MIT
 
-brews:
+homebrew_casks:
   -
     name: gorched
-    tap:
+    repository:
       owner: zladovan
       name: homebrew-tap
-    folder: Formula
     homepage: https://github.com/zladovan/gorched
     description: Terminal based game inspired by \"The Mother of all games\" Scorched Earth
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gorched"]
+          end
 
-scoop:
-  bucket:
-    owner: zladovan
-    name: scoop-bucket
-  homepage: https://github.com/zladovan/gorched
-  description: Terminal based game inspired by "The Mother of all games" Scorched Earth
-  license: MIT
+
+scoops:
+  -
+    repository:
+      owner: zladovan
+      name: scoop-bucket
+    homepage: https://github.com/zladovan/gorched
+    description: Terminal based game inspired by "The Mother of all games" Scorched Earth
+    license: MIT
 
 nfpms:
   -
-    replacements:
-      amd64: 64-bit
-      386: 32-bit
-
     formats:
       - deb
       - rpm
 
-    epoch: 1
-    release: 1
+    epoch: "1"
+    release: "1"
     vendor: zladovan
     homepage: https://github.com/zladovan/gorched
     maintainer: jan cabala (cabala.jan@gmail.com)
