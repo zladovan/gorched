@@ -39,7 +39,7 @@ If you are using [snap](https://snapcraft.io/docs/installing-snapd) just run:
 
 If you are using [homebrew](https://brew.sh/) just run:
 
-    brew install zladovan/tap/gorched
+    brew install --cask zladovan/tap/gorched
 
 ### Windows
 
