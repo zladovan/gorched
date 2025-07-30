@@ -1,2 +1,2 @@
 language = "go"
-run = "go run cmd/main.go --browser"
+run = "go run cmd/gorched/main.go --browser"
